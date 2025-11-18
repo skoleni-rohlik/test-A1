@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rohlík.cz – Test z češtiny (A1)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --rohlik:#f6a623;
+      --bg:#f4f4f4;
+      --green:#47a447;
+      --red:#d9534f;
+      --text:#000;
+      --card:#fff;
+      --border:#e1e1e1;
+      --muted:#777;
+    }
+    body.dark {
+      --bg:#111;
+      --text:#f5f5f5;
+      --card:#1a1a1a;
+      --border:#333;
+      --muted:#aaa;
+    }
+    body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); }
+    #loginScreen { position:fixed; inset:0; background:linear-gradient(140deg, #fff6e6 0%, #ffffff 60%, #ffe1aa 100%); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    body.dark #loginScreen { background:radial-gradient(circle at top, #343434 0%, #111 70%); }
+    .login-box { background:var(--card); border:1px solid rgba(240,208,159,0.5); border-radius:14px; padding:26px; width:min(420px,92%); box-shadow:0 10px 40px rgba(0,0,0,.12); text-align:center; }
+    .login-box img { height:50px; margin-bottom:10px; }
+    .login-title { font-size:18px; font-weight:bold; margin-bottom:4px; }
+    .login-sub { font-size:13px; color:var(--muted); margin-bottom:14px; }
+    .login-input { width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:var(--card); color:var(--text); }
+    body.dark .login-input { border:1px solid #444; }
+    .login-btn { width:100%; background:var(--rohlik); border:none; color:#fff; font-weight:bold; padding:9px 0; border-radius:8px; cursor:pointer; }
+    .login-error { color:#c62828; font-size:12px; min-height:16px; margin-top:5px; }
+    header { background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:10px 20px; gap:20px; position:sticky; top:0; z-index:10; }
+    .brand { display:flex; align-items:center; gap:10px; }
+    .brand img { height:40px; }
+    .title-block small { color:var(--muted); }
+    .timer { display:flex; align-items:center; gap:8px; }
+    .timer-time { background:rgba(246,166,35,0.12); border-radius:999px; padding:6px 14px; font-weight:bold; color:#5a4500; }
+    body.dark .timer-time { color:#fff; background:rgba(246,166,35,0.25); }
+    .timer button { background:var(--rohlik); border:none; color:#fff; border-radius:999px; width:34px; height:34px; font-weight:bold; cursor:pointer; }
+    .theme-btn { background:transparent; border:1px solid rgba(0,0,0,0.1); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px; }
+    body.dark .theme-btn { border:1px solid rgba(255,255,255,0.2); color:#fff; }
+    .progress-wrap { width:100%; background:#eee; height:6px; margin-top:6px; border-radius:999px; overflow:hidden; }
+    body.dark .progress-wrap { background:#333; }
+    .progress-bar { width:0%; height:6px; background:var(--rohlik); transition:width .2s; }
+    .wrap { max-width:1200px; margin:20px auto; padding:0 20px; display:flex; gap:20px; }
+    .left { flex:1 1 60%; }
+    .question-box { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; padding:12px 14px 6px; cursor:pointer; transition:box-shadow .15s,border .15s; }
+    .question-box:hover { box-shadow:0 3px 10px rgba(0,0,0,0.04); }
+    body.dark .question-box:hover { box-shadow:0 3px 10px rgba(255,255,255,0.02); }
+    .question-box.active { border:1px solid var(--rohlik); background:rgba(246,166,35,0.03); }
+    .question-title { font-weight:bold; margin-bottom:6px; color:var(--text); }
+    .answers label { display:block; margin-bottom:5px; cursor:pointer; }
+    .answers input { margin-right:4px; }
+    .text-panel { position:fixed; right:20px; top:105px; width:320px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:0 3px 10px rgba(0,0,0,0.05); min-height:140px; }
+    body.dark .text-panel { box-shadow:none; }
+    .text-panel h3 { margin:0 0 6px 0; font-size:15px; }
+    .text-panel small { color:var(--muted); }
+    .actions { max-width:1200px; margin:0 auto; padding:10px 20px 20px; display:flex; gap:12px; flex-wrap:wrap; }
+    .primary-btn { background:var(--rohlik); border:none; color:#fff; border-radius:8px; padding:9px 18px; cursor:pointer; font-weight:bold; }
+    .secondary-btn { background:var(--card); border:1px solid #ccc; border-radius:8px; padding:9px 14px; cursor:pointer; }
+    body.dark .secondary-btn { border:1px solid #555; color:var(--text); }
+    #result { margin-top:12px; font-weight:bold; }
+    #details { margin:0 20px 20px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px; display:none; max-width:1200px; }
+    #details h4 { margin-top:0; }
+    .onboarding { background:var(--card); border:1px solid rgba(244,222,166,0.6); border-radius:10px; padding:10px 14px; margin:0 20px 10px; max-width:1200px; display:flex; gap:10px; align-items:center; }
+    .onb-number { background:var(--rohlik); color:#fff; width:22px; height:22px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:12px; }
+    .badge-last { background:rgba(246,166,35,0.15); border-radius:999px; padding:3px 8px; font-size:12px; margin-left:8px; display:inline-block; }
+    body.dark .badge-last { background:rgba(246,166,35,0.3); }
+    .missing-msg { color:#b94a48; font-size:14px; margin-top:10px; }
+    .correct { border-color: rgba(71,164,71,0.6) !important; }
+    .wrong { border-color: rgba(217,83,79,0.7) !important; }
+    .trainer-box { margin-top:12px; }
+    .trainer-box textarea { width:100%; min-height:100px; background:var(--card); color:var(--text); }
+    @media (max-width:1100px){ .text-panel{position:static;width:auto;margin:0 20px 20px;} .wrap{flex-direction:column;} }
+  </style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="login-box">
+    <img src="rohlik-logo.png" alt="Rohlík.cz" onerror="this.style.display='none'">
+    <div class="login-title">Přístup k testu</div>
+    <div class="login-sub">Zadejte své jméno a heslo, které jste dostali.</div>
+    <input id="loginName" type="text" class="login-input" placeholder="Jméno a příjmení" autocomplete="off" />
+    <input id="loginPass" type="password" class="login-input" placeholder="Heslo" autocomplete="off" />
+    <button id="loginBtn" class="login-btn">Pokračovat</button>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<header id="appHeader" style="display:none;">
+  <div>
+    <div class="brand">
+      <img src="rohlik-logo.png" alt="Rohlík.cz" onerror="this.style.display='none'">
+      <div class="title-block">
+        <div><strong>Rohlík.cz – Test z češtiny (A1)</strong></div>
+        <small id="answeredInfo">Zodpovězeno 0 / 25</small>
+        <span id="lastResult" class="badge-last" style="display:none;"></span>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
+  </div>
+  <div class="timer">
+    <span id="timer" class="timer-time">30:00</span>
+    <button id="pauseBtn" title="Pauza / pokračovat">II</button>
+    <button id="themeBtn" class="theme-btn" title="Přepnout téma">🌙</button>
+  </div>
+</header>
+
+<div class="onboarding" id="onboarding" style="display:none;">
+  <div class="onb-number">1</div><div>25 otázek, čas 30 minut.</div>
+  <div class="onb-number">2</div><div>Potřebujete alespoň 20 správně.</div>
+  <div class="onb-number">3</div><div>Text k úloze je vpravo.</div>
+</div>
+
+<div class="wrap" id="appWrap" style="display:none;">
+  <div class="left" id="questions"></div>
+</div>
+
+<div class="text-panel" id="textPanel" style="display:none;">
+  <h3>Text k otázce</h3>
+  <small>Klikni na otázku vlevo</small>
+  <div id="textBox" style="white-space:pre-line; margin-top:6px;"></div>
+  <div style="margin-top:10px; font-size:11px; color:var(--muted);">(QR kód nebo návod)</div>
+</div>
+
+<div class="actions" id="appActions" style="display:none;">
+  <button id="checkBtn" class="primary-btn">Vyhodnotit test</button>
+  <button id="newTestBtn" class="secondary-btn">Nový test</button>
+  <div id="result"></div>
+  <div id="missing" class="missing-msg"></div>
+</div>
+<div id="details"></div>
+
+<script>
+  const PASSWORD = "rohlik2025";
+  const QUESTIONS_PER_TEST = 25;
+  const MIN_SCORE = 20;
+  let selected = [];
+  let userName = "";
+  let timeLeft = 30 * 60;
+  let paused = false;
+  let evaluated = false;
+  let timerInterval = null;
+  const savedTheme = localStorage.getItem("rohlik_test_theme");
+  if (savedTheme === "dark") document.body.classList.add("dark");
+
+  const QUESTION_BANK = [
+    {question:"Kdo má narozeniny?",text:"Milá Jano,\n\nzvu Tě na oslavu svých narozenin. Oslava bude v sobotu 7. 6. od 19:30 u mě doma. Bude tam jídlo a přijde i můj bratr Jakub. Zvířata nesmí.\n\nTěším se na Tebe.\nTomáš",answers:["Jana","Jakub","Tomáš","Nikdo"],correct:"Tomáš"},
+    {question:"Kdy bude oslava?",text:"Milá Jano,\n\nzvu Tě na oslavu v sobotu 7. 6. od 19:30 u mě doma.",answers:["V sobotu 7. 6.","V pátek 6. 6.","V neděli 8. 6.","Ve středu"],correct:"V sobotu 7. 6."},
+    {question:"Kdo nesmí na oslavu?",text:"Zvířata na oslavu nesmí.",answers:["Děti","Zvířata","Bratr","Kamarádka"],correct:"Zvířata"},
+    {question:"Jak se Tomáš rozloučil v dopise?",text:"…Těším se na Tebe.\nTomáš",answers:["Tomáš","S pozdravem učitel","Maminka","Bratr"],correct:"Tomáš"},
+    {question:"Co znamená věta: „Zítra nepřijdu.“?",text:"",answers:["Zítra vůbec nepřijdu.","Zítra přijdu pozdě.","Přijdu dnes.","Přijdu zítra ráno."],correct:"Zítra vůbec nepřijdu."},
+    {question:"Vyber správnou větu.",text:"",answers:["Já jsem student.","Já být student.","Já jsi student.","Student já jsem."],correct:"Já jsem student."},
+    {question:"Jak odpovíš na otázku: „Kde bydlíš?“",text:"",answers:["Bydlím v Praze.","Je mi dobře.","Jsem řidič.","Mám dvě děti."],correct:"Bydlím v Praze."},
+    {question:"Jak odpovíš na otázku: „Jak se máš?“",text:"",answers:["Mám se dobře.","Bydlím v Plzni.","Jsem kuchař.","Je pondělí."],correct:"Mám se dobře."},
+    {question:"Doplň: Já ___ z Česka.",text:"",answers:["jsem","jsi","je","jsme"],correct:"jsem"},
+    {question:"Doplň: Ona ___ učitelka.",text:"",answers:["je","jsi","jsem","jsme"],correct:"je"},
+    {question:"Co znamená „Kolik je hodin?“",text:"",answers:["Chci vědět čas.","Chci vědět jméno.","Chci vědět adresu.","Chci vědět cenu."],correct:"Chci vědět čas."},
+    {question:"Které slovo je jídlo?",text:"",answers:["chléb","okno","tramvaj","stůl"],correct:"chléb"},
+    {question:"Které slovo je místnost v bytě?",text:"",answers:["koupelna","auto","středa","mléko"],correct:"koupelna"},
+    {question:"Které slovo je dopravní prostředek?",text:"",answers:["tramvaj","talíř","židle","kniha"],correct:"tramvaj"},
+    {question:"Co řekneš, když nerozumíš:",text:"",answers:["Ještě jednou, prosím.","Mám hlad.","Je pondělí.","Kde bydlíš?"],correct:"Ještě jednou, prosím."},
+    {question:"Který je pozdrav?",text:"",answers:["Dobrý den","Dobrý hrnek","Dobrý autobus","Dobrý rok"],correct:"Dobrý den"},
+    {question:"Která věta je správná odpověď: „Dáte si kávu?“",text:"",answers:["Ano, děkuji.","Bydlím v Brně.","Je mi 30 let.","Jsem řidič."],correct:"Ano, děkuji."},
+    {question:"Jaký je opak slova „levný“?",text:"",answers:["drahý","malý","rychlý","veselý"],correct:"drahý"},
+    {question:"Dnes je pondělí, zítra je…",text:"",answers:["úterý","středa","pátek","neděle"],correct:"úterý"},
+    {question:"Jakou barvu má tráva?",text:"",answers:["zelenou","černou","bílou","červenou"],correct:"zelenou"},
+    {question:"Která odpověď se hodí k otázce „Odkud jste?“",text:"",answers:["Jsem z Brna.","Je mi dobře.","Je středa.","Jsem unavený."],correct:"Jsem z Brna."},
+    {question:"Jak řekneš, že něco nechceš?",text:"",answers:["Ne, nechci.","Ano, chci.","Bydlím tam.","Je mi 25."],correct:"Ne, nechci."},
+    {question:"Co znamená „Máte děti?“",text:"",answers:["Ptám se, jestli máš syna nebo dceru.","Ptám se, kde bydlíš.","Ptám se, kolik je hodin.","Ptám se, kolik máš peněz."],correct:"Ptám se, jestli máš syna nebo dceru."},
+    {question:"Vyber správnou odpověď: „Kde je toaleta?“",text:"",answers:["Je vpravo.","Je středa.","Jsem Petr.","Bydlím v Mostě."],correct:"Je vpravo."},
+    {question:"Co znamená „promiňte“?",text:"",answers:["Omlouvám se.","Jsem učitel.","Je středa.","Mám hlad."],correct:"Omlouvám se."},
+    {question:"Doplň: V práci jsem od 8 ___ 16 hodin.",text:"",answers:["do","na","o","u"],correct:"do"},
+    {question:"Vyber správnou větu.",text:"",answers:["Pracuju v obchodě.","Pracuju obchodě.","Pracuju obchod.","Pracuju v obchod."],correct:"Pracuju v obchodě."},
+    {question:"Které slovo je den v týdnu?",text:"",answers:["pátek","dům","okno","vlak"],correct:"pátek"},
+    {question:"Které slovo je roční období?",text:"",answers:["zima","tramvaj","okno","talíř"],correct:"zima"},
+    {question:"Které slovo je povolání?",text:"",answers:["řidič","zmrzlina","okno","čtvrtek"],correct:"řidič"},
+    {question:"Jak odpovíš na otázku: „Mluvíte česky?“",text:"",answers:["Ano, trochu.","Je pondělí.","Bydlím v Plzni.","Mám dvě děti."],correct:"Ano, trochu."},
+    {question:"Co znamená „Nejím maso.“?",text:"",answers:["Nechci maso.","Chci maso.","Mám maso.","Nerozumím."],correct:"Nechci maso."},
+    {question:"Které slovo patří k rodině?",text:"",answers:["maminka","tramvaj","stůl","knihovna"],correct:"maminka"},
+    {question:"Které slovo patří k rodině?",text:"",answers:["tatínek","okno","čaj","pondělí"],correct:"tatínek"},
+    {question:"Které slovo patří k rodině?",text:"",answers:["syn","židle","vlak","lednice"],correct:"syn"},
+    {question:"Které slovo patří k rodině?",text:"",answers:["dcera","talíř","tramvaj","čas"],correct:"dcera"},
+    {question:"Co znamená „Jdu nakupovat.“?",text:"",answers:["Jdu do obchodu.","Jdu spát.","Jdu do školy.","Jdu do práce."],correct:"Jdu do obchodu."},
+    {question:"Které slovo patří k jídlu?",text:"",answers:["polévka","tramvaj","okno","židle"],correct:"polévka"},
+    {question:"Které slovo patří k pití?",text:"",answers:["voda","stůl","dveře","pondělí"],correct:"voda"},
+    {question:"Vyber správnou větu.",text:"",answers:["Bydlím s manželkou.","Bydlím s manžel.","Bydlím manželkou.","Bydlím manželka."],correct:"Bydlím s manželkou."},
+    {question:"Vyber správnou větu.",text:"",answers:["Bydlím s manželem.","Bydlím s manžel.","Bydlím manželem.","Bydlím manžel."],correct:"Bydlím s manželem."},
+    {question:"Které slovo je čas dne?",text:"",answers:["ráno","židle","džus","okno"],correct:"ráno"},
+    {question:"Které slovo je čas dne?",text:"",answers:["večer","stůl","auto","skříň"],correct:"večer"},
+    {question:"Které slovo je měsíc?",text:"",answers:["leden","tramvaj","dům","boty"],correct:"leden"},
+    {question:"Které slovo je roční období?",text:"",answers:["léto","židle","kniha","talíř"],correct:"léto"},
+    {question:"Doplň: Je mi ___ let.",text:"",answers:["30","pondělí","auta","stůl"],correct:"30"},
+    {question:"Jak odpovíš na otázku: „Kdy máte čas?“",text:"",answers:["V pátek odpoledne.","Bydlím v Praze.","Jsem kuchař.","Je mi 25."],correct:"V pátek odpoledne."},
+    {question:"Která odpověď se hodí k otázce: „Kde pracujete?“",text:"",answers:["Pracuju v nemocnici.","Je středa.","Je mi 30 let.","Mám dvě děti."],correct:"Pracuju v nemocnici."},
+    {question:"Které slovo je budova?",text:"",answers:["škola","zmrzlina","pátek","čaj"],correct:"škola"},
+    {question:"Které slovo je místo ve městě?",text:"",answers:["nádraží","talíř","židle","stůl"],correct:"nádraží"},
+    {question:"Které slovo patří k bydlení?",text:"",answers:["byt","auto","čtvrtek","mléko"],correct:"byt"},
+    {question:"Které slovo patří k bydlení?",text:"",answers:["dům","tramvaj","pátek","polévka"],correct:"dům"},
+    {question:"Které slovo patří k tělu?",text:"",answers:["ruka","stůl","okno","tramvaj"],correct:"ruka"},
+    {question:"Které slovo patří k tělu?",text:"",answers:["hlava","židle","brýle","dveře"],correct:"hlava"},
+    {question:"Které slovo patří k oblečení?",text:"",answers:["kabát","stůl","okno","tramvaj"],correct:"kabát"},
+    {question:"Které slovo patří k oblečení?",text:"",answers:["boty","auto","židle","pondělí"],correct:"boty"},
+    {question:"Které slovo patří k oblečení?",text:"",answers:["tričko","kniha","vlak","dveře"],correct:"tričko"},
+    {question:"Co znamená „je zavřeno“?",text:"",answers:["Obchod nefunguje.","Obchod je otevřený.","Je levné.","Je drahé."],correct:"Obchod nefunguje."},
+    {question:"Co znamená „je otevřeno“?",text:"",answers:["Obchod funguje.","Obchod nefunguje.","Je zima.","Je drahé."],correct:"Obchod funguje."},
+    {question:"Která věta je zdvořilá?",text:"",answers:["Prosím, můžete to zopakovat?","To neříkej!","To je špatné.","Nechci."],correct:"Prosím, můžete to zopakovat?"},
+    {question:"Když řekneš „Nerozumím“, co chceš?",text:"",answers:["Aby mluvili znovu.","Aby ti dali jídlo.","Aby odešli.","Aby ti dali peníze."],correct:"Aby mluvili znovu."},
+    {question:"Co znamená „Kdo to je?“",text:"",answers:["Ptám se na osobu.","Ptám se na cenu.","Ptám se na čas.","Ptám se na den."],correct:"Ptám se na osobu."},
+    {question:"Co znamená „Kolik to stojí?“",text:"",answers:["Ptám se na cenu.","Ptám se na čas.","Ptám se na jméno.","Ptám se na den."],correct:"Ptám se na cenu."},
+    {question:"Které slovo patří k práci?",text:"",answers:["směna","sobota","lžíce","okno"],correct:"směna"},
+    {question:"Které slovo patří k práci?",text:"",answers:["mzda","tramvaj","židle","kniha"],correct:"mzda"},
+    {question:"Které slovo patří k číslům?",text:"",answers:["sedm","okno","stůl","tramvaj"],correct:"sedm"},
+    {question:"Které slovo patří k číslům?",text:"",answers:["dvanáct","pondělí","židle","auto"],correct:"dvanáct"},
+    {question:"Vyber správnou odpověď na „Jaký je dnes den?“",text:"",answers:["Dnes je úterý.","Bydlím v Pardubicích.","Mám dvě děti.","Jsem skladník."],correct:"Dnes je úterý."},
+    {question:"Vyber správnou odpověď na „Kdy začíná směna?“",text:"",answers:["V 7:00.","Bydlím v Brně.","Je mi 23.","Je hezky."],correct:"V 7:00."},
+    {question:"Které slovo patří k nákupu?",text:"",answers:["pokladna","čtvrtek","židle","skříň"],correct:"pokladna"},
+    {question:"Které slovo patří k nákupu?",text:"",answers:["sleva","tramvaj","pátek","talíř"],correct:"sleva"},
+    {question:"Co znamená „Je obsazeno.“?",text:"",answers:["Nemůžete tam.","Je otevřeno.","Je zavřeno.","Je levné."],correct:"Nemůžete tam."},
+    {question:"Co znamená „Počkejte chvilku.“?",text:"",answers:["Zůstaňte tady.","Jděte pryč.","Sedněte si.","Zaplaťte."],correct:"Zůstaňte tady."},
+    {question:"Co znamená „Pojďte dál.“?",text:"",answers:["Můžete vstoupit.","Musíte odejít.","Je zavřeno.","Je drahé."],correct:"Můžete vstoupit."},
+    {question:"Které slovo patří k počasí?",text:"",answers:["prší","kniha","židle","talíř"],correct:"prší"},
+    {question:"Které slovo patří k počasí?",text:"",answers:["sníh","tramvaj","okno","polévka"],correct:"sníh"},
+    {question:"Které slovo patří k počasí?",text:"",answers:["slunečno","pondělí","kniha","židle"],correct:"slunečno"},
+    {question:"Vyber správnou větu.",text:"",answers:["Dnes je hezky.","Dnes hezky je.","Dnes hezky.","Je dnes hezky je."],correct:"Dnes je hezky."},
+    {question:"Které slovo je budíkem?",text:"",answers:["ráno v 6:00","okno","skříň","koupelna"],correct:"ráno v 6:00"},
+    {question:"Které slovo patří k telefonu?",text:"",answers:["zavolat","čtvrtek","židle","talíř"],correct:"zavolat"},
+    {question:"Co znamená „Mám volno.“?",text:"",answers:["Nemusím pracovat.","Musím pracovat.","Jdu spát.","Jdu nakupovat."],correct:"Nemusím pracovat."},
+    {question:"Co znamená „Jsem nemocný.“?",text:"",answers:["Necítím se dobře.","Chci jíst.","Chci spát v práci.","Mám auto."],correct:"Necítím se dobře."},
+    {question:"Které slovo patří ke zdraví?",text:"",answers:["lékař","tramvaj","skříň","kniha"],correct:"lékař"},
+    {question:"Které slovo patří ke zdraví?",text:"",answers:["lékárna","židle","stůl","okno"],correct:"lékárna"},
+    {question:"Které slovo patří ke škole?",text:"",answers:["učitel","auto","stůl","pátek"],correct:"učitel"},
+    {question:"Které slovo patří ke škole?",text:"",answers:["student","tramvaj","židle","talíř"],correct:"student"},
+    {question:"Které slovo patří k penězům?",text:"",answers:["hotovost","stůl","okno","čtvrtek"],correct:"hotovost"},
+    {question:"Co znamená „Zaplatíte kartou?“",text:"",answers:["Ptám se, jak zaplatíte.","Ptám se, kde bydlíte.","Ptám se, kolik je hodin.","Ptám se, jak se máte."],correct:"Ptám se, jak zaplatíte."},
+    {question:"Které slovo patří k cestování?",text:"",answers:["jízdenka","talíř","kniha","židle"],correct:"jízdenka"},
+    {question:"Které slovo patří k cestování?",text:"",answers:["kufr","stůl","okno","čaj"],correct:"kufr"},
+    {question:"Vyber správnou odpověď: „Kdy přijedeš?“",text:"",answers:["V 16:30.","Jsem řidič.","Bydlím v Plzni.","Mám dvě děti."],correct:"V 16:30."},
+    {question:"Které slovo patří k dopravě?",text:"",answers:["autobus","kniha","skříň","polévka"],correct:"autobus"},
+    {question:"Které slovo patří k kanceláři?",text:"",answers:["počítač","talíř","tramvaj","stůl"],correct:"počítač"},
+    {question:"Které slovo patří k jídelně?",text:"",answers:["příbor","tramvaj","okno","boty"],correct:"příbor"},
+    {question:"Které slovo patří k úklidu?",text:"",answers:["koš","tramvaj","stůl","pondělí"],correct:"koš"},
+    {question:"Které slovo patří k úklidu?",text:"",answers:["vysavač","vlak","okno","kniha"],correct:"vysavač"},
+    {question:"Které slovo patří k domovu?",text:"",answers:["klíče","sobota","tramvaj","kniha"],correct:"klíče"},
+    {question:"Vyber správnou odpověď: „Co děláš o víkendu?“",text:"",answers:["Odpočívám.","Je středa.","Bydlím v Brně.","Jsem kuchař."],correct:"Odpočívám."},
+    {question:"Které slovo patří k času?",text:"",answers:["hodiny","židle","tramvaj","kniha"],correct:"hodiny"},
+    {question:"Které slovo patří k povolání?",text:"",answers:["kuchař","tramvaj","zima","židle"],correct:"kuchař"},
+    {question:"Které slovo patří ke stravě?",text:"",answers:["snídaně","okno","tramvaj","skříň"],correct:"snídaně"},
+    {question:"Které slovo patří ke stravě?",text:"",answers:["večeře","židle","dveře","tramvaj"],correct:"večeře"},
+    {question:"Které slovo patří ke stravě?",text:"",answers:["oběd","kniha","ředitel","skříň"],correct:"oběd"},
+    {question:"Co znamená „Jsem na dovolené.“?",text:"",answers:["Nepracuju a odpočívám.","Pracuju.","Jdu do práce.","Jdu do školy."],correct:"Nepracuju a odpočívám."},
+    {question:"Co znamená „Jsem na cestě.“?",text:"",answers:["Jedu někam.","Jím večeři.","Spím.","Jdu do kina."],correct:"Jedu někam."},
+    {question:"Které slovo patří k nemocnici?",text:"",answers:["sestra","tramvaj","okno","stůl"],correct:"sestra"},
+    {question:"Které slovo patří k nemocnici?",text:"",answers:["doktor","kniha","střecha","čtvrtek"],correct:"doktor"},
+    {question:"Co znamená „zavolejte mi“?",text:"",answers:["Prosím, telefonujte mi.","Prosím, přijďte hned.","Prosím, napište dopis.","Prosím, zaplaťte."],correct:"Prosím, telefonujte mi."},
+    {question:"Jak řekneš, že něco není?",text:"",answers:["To není.","To mám.","To chci.","To beru."],correct:"To není."},
+    {question:"Které slovo patří k obchodu s jídlem?",text:"",answers:["pečivo","židle","auto","okno"],correct:"pečivo"},
+    {question:"Co znamená „sleva 20 %“?",text:"",answers:["Je to levnější.","Je to dražší.","Je to zadarmo.","Je to zavřené."],correct:"Je to levnější."},
+    {question:"Co znamená „otevřeno od 8 do 18“?",text:"",answers:["Můžeš přijít mezi 8 a 18.","Můžeš přijít v noci.","Nemůžeš přijít nikdy.","Můžeš přijít jen v 10."],correct:"Můžeš přijít mezi 8 a 18."},
+    {question:"Které slovo patří k bytu?",text:"",answers:["nájem","vlak","tramvaj","úterý"],correct:"nájem"},
+    {question:"Co znamená „pronájem bytu“?",text:"",answers:["Byt je na půjčení za peníze.","Byt je zničený.","Byt je prázdný.","Byt je ve škole."],correct:"Byt je na půjčení za peníze."},
+    {question:"Které slovo patří k penězům?",text:"",answers:["výplata","židle","stůl","okno"],correct:"výplata"},
+    {question:"Které slovo patří k objednávce?",text:"",answers:["potvrdit","dveře","tramvaj","kniha"],correct:"potvrdit"},
+    {question:"Co znamená „Jsem v práci.“?",text:"",answers:["Teď pracuju.","Jsem doma.","Jsem na dovolené.","Spím."],correct:"Teď pracuju."},
+    {question:"Co znamená „Jsem doma.“?",text:"",answers:["Jsem ve svém bytě.","Jsem v práci.","Jsem v obchodě.","Jsem v nemocnici."],correct:"Jsem ve svém bytě."},
+    {question:"Které slovo patří k úkolům?",text:"",answers:["hotovo","okno","tramvaj","čtvrtek"],correct:"hotovo"},
+    {question:"Které slovo patří k bezpečnosti?",text:"",answers:["helma","talíř","židle","polévka"],correct:"helma"},
+    {question:"Které slovo patří k bezpečnosti?",text:"",answers:["reflexní vesta","tramvaj","čtvrtek","kniha"],correct:"reflexní vesta"},
+    {question:"Co znamená „pomalá jízda“?",text:"",answers:["Musíte jet pomalu.","Musíte jet rychle.","Musíte jet vpravo.","Musíte jet domů."],correct:"Musíte jet pomalu."},
+    {question:"Co znamená „zákaz vstupu“?",text:"",answers:["Nesmíte tam.","Musíte tam.","Zaplaťte tam.","Bydlete tam."],correct:"Nesmíte tam."},
+    {question:"Které slovo patří k jízdnímu řádu?",text:"",answers:["odjezd","talíř","židle","skříň"],correct:"odjezd"},
+    {question:"Které slovo patří ke kalendáři?",text:"",answers:["datum","tramvaj","stůl","kniha"],correct:"datum"},
+    {question:"Co znamená „platí od 1. června“?",text:"",answers:["Začíná 1. června.","Končí 1. června.","Trvá 5 minut.","Je to levné."],correct:"Začíná 1. června."},
+    {question:"Které slovo patří ke smlouvě?",text:"",answers:["podpis","tramvaj","talíř","středa"],correct:"podpis"},
+    {question:"Které slovo patří k e-mailu?",text:"",answers:["předmět","dveře","židle","skříň"],correct:"předmět"},
+    {question:"Co znamená „příloha e-mailu“?",text:"",answers:["Soubor poslaný s e-mailem.","Jídlo k obědu.","Doklad v obchodě.","Lístek na tramvaj."],correct:"Soubor poslaný s e-mailem."},
+    {question:"Které slovo patří ke schůzce?",text:"",answers:["termín","auto","stůl","židle"],correct:"termín"},
+    {question:"Co znamená „omlouvám se za zpoždění“?",text:"",answers:["Přišel jsem pozdě.","Přišel jsem brzy.","Nepřijdu.","Nejdu do práce."],correct:"Přišel jsem pozdě."},
+    {question:"Které slovo patří k nástupu do práce?",text:"",answers:["pracovní smlouva","talíř","tramvaj","židle"],correct:"pracovní smlouva"},
+    {question:"Které slovo patří k dovolené?",text:"",answers:["žádost","skříň","tramvaj","kniha"],correct:"žádost"},
+    {question:"Co znamená „přestávka 30 minut“?",text:"",answers:["30 minut nepracujete.","30 minut pracujete.","30 minut nakupujete.","30 minut spíte v práci."],correct:"30 minut nepracujete."},
+    {question:"Které slovo patří ke skladu?",text:"",answers:["paleta","stůl","kniha","židle"],correct:"paleta"},
+    {question:"Které slovo patří ke skladu?",text:"",answers:["zboží","tramvaj","talíř","okno"],correct:"zboží"},
+    {question:"Co znamená „Vyčkejte venku.“?",text:"",answers:["Zůstaňte venku.","Pojďte dovnitř.","Běžte domů.","Sedněte si."],correct:"Zůstaňte venku."},
+    {question:"Co znamená „Vstup jen pro zaměstnance.“?",text:"",answers:["Jen lidé z firmy mohou dovnitř.","Nikdo nemůže dovnitř.","Jen zákazníci mohou dovnitř.","Jen děti mohou dovnitř."],correct:"Jen lidé z firmy mohou dovnitř."},
+    {question:"Které slovo patří k telefonu?",text:"",answers:["zpráva","talíř","okno","židle"],correct:"zpráva"},
+    {question:"Které slovo patří k objednávce?",text:"",answers:["číslo objednávky","tramvaj","čtvrtek","stůl"],correct:"číslo objednávky"},
+    {question:"Co znamená „přijďte včas“?",text:"",answers:["Přijďte na správný čas.","Přijďte pozdě.","Nepřijďte.","Přijďte kdykoliv v noci."],correct:"Přijďte na správný čas."},
+    {question:"Které slovo patří k jídlu v práci?",text:"",answers:["stravenka","tramvaj","židle","okno"],correct:"stravenka"},
+    {question:"Které slovo patří k otevření dveří?",text:"",answers:["klika","stůl","tramvaj","džus"],correct:"klika"},
+    {question:"Co znamená „nechte to tady“?",text:"",answers:["Položte to na toto místo.","Vezměte to pryč.","Vyhoďte to.","Snězte to."],correct:"Položte to na toto místo."},
+    {question:"Co znamená „zavřete okno“?",text:"",answers:["Okno musí být zavřené.","Okno musí být otevřené.","Okno musí být čisté.","Okno musí být velké."],correct:"Okno musí být zavřené."},
+    {question:"Které slovo patří k topení?",text:"",answers:["radiátor","tramvaj","dveře","židle"],correct:"radiátor"},
+    {question:"Které slovo patří k práci venku?",text:"",answers:["pracovní rukavice","talíř","kniha","židle"],correct:"pracovní rukavice"},
+    {question:"Co znamená „pozor, kluzká podlaha“?",text:"",answers:["Můžete uklouznout.","Musíte běžet.","Je tam horko.","Nesmíte tam jít nikdy."],correct:"Můžete uklouznout."},
+    {question:"Co znamená „vypněte světlo“?",text:"",answers:["Zhasněte.","Rozsviťte.","Otevřete okno.","Zavřete dveře."],correct:"Zhasněte."},
+    {question:"Které slovo patří ke kanceláři?",text:"",answers:["tiskárna","tramvaj","talíř","okno"],correct:"tiskárna"},
+    {question:"Které slovo patří k psaní?",text:"",answers:["pero","časopis","tramvaj","talíř"],correct:"pero"},
+    {question:"Které slovo patří k obuvi?",text:"",answers:["pracovní boty","kniha","talíř","stůl"],correct:"pracovní boty"},
+    {question:"Co znamená „sraz v 9:00 u vstupu“?",text:"",answers:["Setkáme se v 9:00 u dveří.","Setkáme se doma.","Setkáme se večer.","Nesetkáme se."],correct:"Setkáme se v 9:00 u dveří."},
+    {question:"Co znamená „čekejte na pokyny“?",text:"",answers:["Počkejte, až vám někdo řekne, co dělat.","Jděte pryč.","Začněte hned bez povolení.","Zavolejte domů."],correct:"Počkejte, až vám někdo řekne, co dělat."},
+    {question:"Které slovo patří k obýváku?",text:"",answers:["gauč","tramvaj","středa","kniha"],correct:"gauč"},
+    {question:"Které slovo patří k ložnici?",text:"",answers:["postel","tramvaj","stůl","dveře"],correct:"postel"},
+    {question:"Které slovo patří k nádobí?",text:"",answers:["talíř","tramvaj","stůl","židle"],correct:"talíř"},
+    {question:"Které slovo patří k časovému plánu?",text:"",answers:["rozpis","okno","židle","kniha"],correct:"rozpis"},
+    {question:"Co znamená „přednost v jízdě“?",text:"",answers:["Ten druhý pojede první.","Nikdo nesmí jet.","Musíte jít pěšky.","Všichni jedou najednou."],correct:"Ten druhý pojede první."},
+    {question:"Co znamená „dejte tam podpis“?",text:"",answers:["Podepište se.","Zaplaťte.","Odejděte.","Ptejte se."],correct:"Podepište se."},
+    {question:"Které slovo patří k financím?",text:"",answers:["faktura","tramvaj","středa","talíř"],correct:"faktura"},
+    {question:"Které slovo patří k nástrojům?",text:"",answers:["šroubovák","tramvaj","židle","kniha"],correct:"šroubovák"},
+    {question:"Co znamená „přezujte se“?",text:"",answers:["Vezměte si jiné boty.","Jděte spát.","Zavřete dveře.","Umyjte nádobí."],correct:"Vezměte si jiné boty."},
+    {question:"Které slovo patří k jízdě autem?",text:"",answers:["řidičský průkaz","stůl","kniha","talíř"],correct:"řidičský průkaz"},
+    {question:"Co znamená „nahlaste problém“?",text:"",answers:["Řekněte, že je problém.","Jděte domů.","Zničte to.","Ignorujte to."],correct:"Řekněte, že je problém."},
+    {question:"Které slovo patří k jídlu v restauraci?",text:"",answers:["účtenka","tramvaj","okno","kniha"],correct:"účtenka"},
+    {question:"Které slovo patří ke zdraví?",text:"",answers:["teplota","tramvaj","židle","kniha"],correct:"teplota"},
+    {question:"Co znamená „máte volno“?",text:"",answers:["Nemusíte pracovat.","Musíte pracovat.","Musíte zaplatit.","Musíte přijít."],correct:"Nemusíte pracovat."},
+    {question:"Které slovo patří k montáži?",text:"",answers:["šroub","tramvaj","okno","stůl"],correct:"šroub"},
+    {question:"Které slovo patří k balení zboží?",text:"",answers:["krabice","židle","tramvaj","kniha"],correct:"krabice"},
+    {question:"Co znamená „odešlete formulář“?",text:"",answers:["Pošlete vyplněný papír.","Zavřete dveře.","Uvařte oběd.","Přineste klíče."],correct:"Pošlete vyplněný papír."}
+  ];
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} }
+  function pickN(arr, n){ const copy=[...arr]; shuffle(copy); return copy.slice(0,n); }
+
+  function buildQuestions(){
+    const questionsDiv = document.getElementById("questions");
+    questionsDiv.innerHTML = "";
+    const part1 = QUESTION_BANK.slice(0,50);
+    const part2 = QUESTION_BANK.slice(50,100);
+    const part3 = QUESTION_BANK.slice(100,150);
+    const sel1 = pickN(part1, 9);
+    const sel2 = pickN(part2, 8);
+    const sel3 = pickN(part3, 8);
+    selected = [...sel1, ...sel2, ...sel3];
+    document.getElementById("textBox").textContent = "";
+    selected.forEach((q, index)=>{
+      const answers = [...q.answers];
+      shuffle(answers);
+      const box = document.createElement("div");
+      box.className = "question-box";
+      box.dataset.index = index;
+      const title = document.createElement("div");
+      title.className = "question-title";
+      title.textContent = "Otázka " + (index+1) + " z " + QUESTIONS_PER_TEST + ": " + q.question;
+      box.appendChild(title);
+      const answersDiv = document.createElement("div");
+      answers.forEach(ans=>{
+        const id = "q"+index+"_"+ans;
+        const label = document.createElement("label");
+        label.setAttribute("for", id);
+        label.innerHTML = '<input type="radio" name="q'+index+'" id="'+id+'" value="'+ans+'"> '+ans;
+        answersDiv.appendChild(label);
+      });
+      box.appendChild(answersDiv);
+      questionsDiv.appendChild(box);
+      box.addEventListener("click", ()=>{
+        document.querySelectorAll(".question-box").forEach(b=>b.classList.remove("active"));
+        box.classList.add("active");
+        document.getElementById("textBox").textContent = q.text ? q.text : "Tato otázka nemá text.";
+      });
+      box.addEventListener("change", updateAnswered);
+    });
+    updateAnswered();
+  }
+
+  function updateAnswered(){
+    let answered = 0;
+    selected.forEach((q,i)=>{
+      const chosen = document.querySelector('input[name="q'+i+'"]:checked');
+      if (chosen) answered++;
+    });
+    document.getElementById("answeredInfo").textContent = "Zodpovězeno " + answered + " / " + QUESTIONS_PER_TEST;
+    document.getElementById("progressBar").style.width = (answered / QUESTIONS_PER_TEST * 100) + "%";
+  }
+
+  function showLastResultBadge(){
+    const badge = document.getElementById("lastResult");
+    const str = localStorage.getItem("rohlik_cestina_test_last");
+    if (!str) return;
+    const obj = JSON.parse(str);
+    const d = new Date(obj.date);
+    badge.textContent = "Naposledy: " + (obj.name || "") + " – " + obj.score + "/" + obj.total + " (" + d.toLocaleString("cs-CZ") + ")";
+    badge.style.display = "inline-block";
+  }
+
+  function startTimer(){
+    if (timerInterval) clearInterval(timerInterval);
+    timeLeft = 30 * 60;
+    paused = false;
+    evaluated = false;
+    document.getElementById("timer").textContent = "30:00";
+    timerInterval = setInterval(()=>{
+      if (!paused && !evaluated){
+        timeLeft--;
+        if (timeLeft <= 0){
+          timeLeft = 0;
+          if (!evaluated) evaluate();
+        }
+      }
+      const m = Math.floor(timeLeft/60);
+      const s = timeLeft % 60;
+      document.getElementById("timer").textContent = (m<10?"0"+m:m)+":"+(s<10?"0"+s:s);
+    },1000);
+  }
+
+  function evaluate(){
+    const missing = [];
+    selected.forEach((q,i)=>{
+      const chosen = document.querySelector('input[name="q'+i+'"]:checked');
+      if (!chosen) missing.push(i+1);
+    });
+    const missDiv = document.getElementById("missing");
+    if (missing.length){
+      missDiv.textContent = "Nezodpovězené otázky: " + missing.join(", ");
+      return;
+    } else {
+      missDiv.textContent = "";
+    }
+    let score = 0;
+    let wrong = [];
+    selected.forEach((q,i)=>{
+      const chosen = document.querySelector('input[name="q'+i+'"]:checked');
+      const box = document.querySelector('.question-box[data-index="'+i+'"]');
+      if (chosen && chosen.value === q.correct){
+        score++;
+        box.classList.add("correct");
+        box.classList.remove("wrong");
+      } else {
+        wrong.push({i:i+1, q:q.question, c:q.correct});
+        box.classList.add("wrong");
+        box.classList.remove("correct");
+      }
+    });
+    const result = document.getElementById("result");
+    const percent = Math.round(score / QUESTIONS_PER_TEST * 100);
+    if (score >= MIN_SCORE){
+      result.textContent = "Výsledek: " + score + "/" + QUESTIONS_PER_TEST + " (" + percent + " %) – PROŠEL(A).";
+      result.style.color = "green";
+    } else {
+      result.textContent = "Výsledek: " + score + "/" + QUESTIONS_PER_TEST + " (" + percent + " %) – NEPROŠEL(A). Potřebujete alespoň " + MIN_SCORE + " bodů.";
+      result.style.color = "red";
+    }
+    const details = document.getElementById("details");
+    if (wrong.length){
+      let html = "<h4>Nesprávné / nezodpovězené otázky:</h4><ul>";
+      wrong.forEach(w=>{
+        html += "<li>Otázka " + w.i + ": " + w.q + " – správně: <strong>" + w.c + "</strong></li>";
+      });
+      html += "</ul>";
+      const today = new Date().toLocaleString("cs-CZ");
+      const trainerText = "Jméno: "+(userName || "neuvedeno")+"\nDatum: "+today+"\nVýsledek: "+score+"/"+QUESTIONS_PER_TEST+" ("+percent+" %)\nChyby: "+wrong.map(w=>"Otázka "+w.i).join(", ");
+      html += '<div class="trainer-box"><p><strong>Text pro školitele:</strong></p><textarea>'+trainerText+'</textarea></div>';
+      details.innerHTML = html;
+      details.style.display = "block";
+    } else {
+      details.style.display = "none";
+    }
+    const resObj = { name: userName, score: score, total: QUESTIONS_PER_TEST, percent: percent, date: new Date().toISOString() };
+    localStorage.setItem("rohlik_cestina_test_last", JSON.stringify(resObj));
+    showLastResultBadge();
+    evaluated = true;
+  }
+
+  document.getElementById("loginBtn").addEventListener("click", ()=>{
+    const name = document.getElementById("loginName").value.trim();
+    const pass = document.getElementById("loginPass").value.trim();
+    if (!name){ document.getElementById("loginError").textContent = "Zadejte jméno."; return; }
+    if (pass !== PASSWORD){ document.getElementById("loginError").textContent = "Nesprávné heslo."; return; }
+    userName = name;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appHeader").style.display = "";
+    document.getElementById("appWrap").style.display = "";
+    document.getElementById("textPanel").style.display = "";
+    document.getElementById("appActions").style.display = "";
+    document.getElementById("onboarding").style.display = "flex";
+    showLastResultBadge();
+    buildQuestions();
+    startTimer();
+  });
+  document.getElementById("loginPass").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("loginBtn").click(); });
+  document.getElementById("loginName").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("loginBtn").click(); });
+
+  document.getElementById("checkBtn").addEventListener("click", evaluate);
+  document.getElementById("pauseBtn").addEventListener("click", ()=>{
+    paused = !paused;
+    document.getElementById("pauseBtn").textContent = paused ? "▶" : "II";
+  });
+  document.getElementById("newTestBtn").addEventListener("click", ()=>{
+    document.getElementById("result").textContent = "";
+    document.getElementById("details").style.display = "none";
+    document.getElementById("missing").textContent = "";
+    document.querySelectorAll(".question-box").forEach(b=>b.classList.remove("correct","wrong"));
+    buildQuestions();
+    startTimer();
+  });
+
+  document.getElementById("themeBtn").addEventListener("click", ()=>{
+    document.body.classList.toggle("dark");
+    const isDark = document.body.classList.contains("dark");
+    localStorage.setItem("rohlik_test_theme", isDark ? "dark" : "light");
+    document.getElementById("themeBtn").textContent = isDark ? "☀️" : "🌙";
+  });
+  if (document.body.classList.contains("dark")) document.getElementById("themeBtn").textContent = "☀️";
+</script>
+</body>
+</html>
