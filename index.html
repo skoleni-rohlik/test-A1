@@ -223,7 +223,7 @@
   const PASSWORD_ADMIN = "rohlik-admin";
   const QUESTIONS_PER_TEST = 25;
   const MIN_SCORE = 20;
-  const SHEET_ENDPOINT = "SEM_VLOZ_SVOJI_URL";
+  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyjy2NpeoAVwizn_hyc6s_ojn6NXQS0z86nRoQ1ZFE31ZTVOaRbnnAX--Nnj1JfdVO0/exec";
 
   let selected = [];
   let userName = "";
@@ -244,7 +244,7 @@
 
   const TEST_VERSION = "1.1.0";
 
-  const QUESTION_BANK = [
+  const QUESTION_BANK = [ const QUESTION_BANK = [
     {question:"Kdo má narozeniny?",text:"Milá Jano,\n\nzvu Tě na oslavu svých narozenin. Oslava bude v sobotu 7. 6. od 19:30 u mě doma. Bude tam jídlo a přijde i můj bratr Jakub. Zvířata nesmí.\n\nTěším se na Tebe.\nTomáš",answers:["Jana","Jakub","Tomáš","Nikdo"],correct:"Tomáš"},
     {question:"Kdy bude oslava?",text:"Milá Jano,\n\nzvu Tě na oslavu v sobotu 7. 6. od 19:30 u mě doma.",answers:["V sobotu 7. 6.","V pátek 6. 6.","V neděli 8. 6.","Ve středu"],correct:"V sobotu 7. 6."},
     {question:"Kdo nesmí na oslavu?",text:"Zvířata na oslavu nesmí.",answers:["Děti","Zvířata","Bratr","Kamarádka"],correct:"Zvířata"},
@@ -417,7 +417,7 @@
     {question:"Které slovo patří k balení zboží?",text:"",answers:["krabice","židle","tramvaj","kniha"],correct:"krabice"},
     {question:"Co znamená „odešlete formulář“?",text:"",answers:["Pošlete vyplněný papír.","Zavřete dveře.","Uvařte oběd.","Přineste klíče."],correct:"Pošlete vyplněný papír."}
   ];
-
+  
   function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} }
   function pickN(arr, n){ const copy=[...arr]; shuffle(copy); return copy.slice(0,n); }
 
@@ -504,7 +504,7 @@
   }
 
   function sendResultToSheet(payload){
-    if (!SHEET_ENDPOINT || SHEET_ENDPOINT === "https://script.google.com/macros/s/AKfycbyjy2NpeoAVwizn_hyc6s_ojn6NXQS0z86nRoQ1ZFE31ZTVOaRbnnAX--Nnj1JfdVO0/exec") return;
+    if (!SHEET_ENDPOINT) return;
     try {
       fetch(SHEET_ENDPOINT, {
         method: "POST",
