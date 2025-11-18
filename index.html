@@ -1,152 +1,28 @@
-<!DOCTYPE html>
-<html lang="cs">
-<head>
-  <meta charset="UTF-8" />
-  <title>Rohlík.cz – Test z češtiny (A1)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --rohlik:#f6a623;
-      --bg:#f4f4f4;
-      --green:#47a447;
-      --red:#d9534f;
-      --text:#000;
-      --card:#fff;
-      --border:#e1e1e1;
-      --muted:#777;
-    }
-    body.dark {
-      --bg:#111;
-      --text:#f5f5f5;
-      --card:#1a1a1a;
-      --border:#333;
-      --muted:#aaa;
-    }
-    body { margin:0; font-family:Arial,sans-serif; background:var(--bg); color:var(--text); }
-    #loginScreen { position:fixed; inset:0; background:linear-gradient(140deg, #fff6e6 0%, #ffffff 60%, #ffe1aa 100%); display:flex; align-items:center; justify-content:center; z-index:9999; }
-    body.dark #loginScreen { background:radial-gradient(circle at top, #343434 0%, #111 70%); }
-    .login-box { background:var(--card); border:1px solid rgba(240,208,159,0.5); border-radius:14px; padding:26px; width:min(420px,92%); box-shadow:0 10px 40px rgba(0,0,0,.12); text-align:center; }
-    .login-box img { height:50px; margin-bottom:10px; }
-    .login-title { font-size:18px; font-weight:bold; margin-bottom:4px; }
-    .login-sub { font-size:13px; color:var(--muted); margin-bottom:14px; }
-    .login-input { width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:8px; margin-bottom:10px; background:var(--card); color:var(--text); }
-    body.dark .login-input { border:1px solid #444; }
-    .login-btn { width:100%; background:var(--rohlik); border:none; color:#fff; font-weight:bold; padding:9px 0; border-radius:8px; cursor:pointer; }
-    .login-error { color:#c62828; font-size:12px; min-height:16px; margin-top:5px; }
-    header { background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:10px 20px; gap:20px; position:sticky; top:0; z-index:10; }
-    .brand { display:flex; align-items:center; gap:10px; }
-    .brand img { height:40px; }
-    .title-block small { color:var(--muted); }
-    .timer { display:flex; align-items:center; gap:8px; }
-    .timer-time { background:rgba(246,166,35,0.12); border-radius:999px; padding:6px 14px; font-weight:bold; color:#5a4500; }
-    body.dark .timer-time { color:#fff; background:rgba(246,166,35,0.25); }
-    .timer button { background:var(--rohlik); border:none; color:#fff; border-radius:999px; width:34px; height:34px; font-weight:bold; cursor:pointer; }
-    .theme-btn { background:transparent; border:1px solid rgba(0,0,0,0.1); border-radius:999px; width:34px; height:34px; cursor:pointer; font-size:14px; }
-    body.dark .theme-btn { border:1px solid rgba(255,255,255,0.2); color:#fff; }
-    .progress-wrap { width:100%; background:#eee; height:6px; margin-top:6px; border-radius:999px; overflow:hidden; }
-    body.dark .progress-wrap { background:#333; }
-    .progress-bar { width:0%; height:6px; background:var(--rohlik); transition:width .2s; }
-    .wrap { max-width:1200px; margin:20px auto; padding:0 20px; display:flex; gap:20px; }
-    .left { flex:1 1 60%; }
-    .question-box { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:14px; padding:12px 14px 6px; cursor:pointer; transition:box-shadow .15s,border .15s; }
-    .question-box:hover { box-shadow:0 3px 10px rgba(0,0,0,0.04); }
-    body.dark .question-box:hover { box-shadow:0 3px 10px rgba(255,255,255,0.02); }
-    .question-box.active { border:1px solid var(--rohlik); background:rgba(246,166,35,0.03); }
-    .question-title { font-weight:bold; margin-bottom:6px; color:var(--text); }
-    .answers label { display:block; margin-bottom:5px; cursor:pointer; }
-    .answers input { margin-right:4px; }
-    .text-panel { position:fixed; right:20px; top:105px; width:320px; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px; box-shadow:0 3px 10px rgba(0,0,0,0.05); min-height:140px; }
-    body.dark .text-panel { box-shadow:none; }
-    .text-panel h3 { margin:0 0 6px 0; font-size:15px; }
-    .text-panel small { color:var(--muted); }
-    .actions { max-width:1200px; margin:0 auto; padding:10px 20px 20px; display:flex; gap:12px; flex-wrap:wrap; }
-    .primary-btn { background:var(--rohlik); border:none; color:#fff; border-radius:8px; padding:9px 18px; cursor:pointer; font-weight:bold; }
-    .secondary-btn { background:var(--card); border:1px solid #ccc; border-radius:8px; padding:9px 14px; cursor:pointer; }
-    body.dark .secondary-btn { border:1px solid #555; color:var(--text); }
-    #result { margin-top:12px; font-weight:bold; }
-    #details { margin:0 20px 20px; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:10px; display:none; max-width:1200px; }
-    #details h4 { margin-top:0; }
-    .onboarding { background:var(--card); border:1px solid rgba(244,222,166,0.6); border-radius:10px; padding:10px 14px; margin:0 20px 10px; max-width:1200px; display:flex; gap:10px; align-items:center; }
-    .onb-number { background:var(--rohlik); color:#fff; width:22px; height:22px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:12px; }
-    .badge-last { background:rgba(246,166,35,0.15); border-radius:999px; padding:3px 8px; font-size:12px; margin-left:8px; display:inline-block; }
-    body.dark .badge-last { background:rgba(246,166,35,0.3); }
-    .missing-msg { color:#b94a48; font-size:14px; margin-top:10px; }
-    .correct { border-color: rgba(71,164,71,0.6) !important; }
-    .wrong { border-color: rgba(217,83,79,0.7) !important; }
-    .trainer-box { margin-top:12px; }
-    .trainer-box textarea { width:100%; min-height:100px; background:var(--card); color:var(--text); }
-    @media (max-width:1100px){ .text-panel{position:static;width:auto;margin:0 20px 20px;} .wrap{flex-direction:column;} }
-  </style>
-</head>
-<body>
-<div id="loginScreen">
-  <div class="login-box">
-    <img src="rohlik-logo.png" alt="Rohlík.cz" onerror="this.style.display='none'">
-    <div class="login-title">Přístup k testu</div>
-    <div class="login-sub">Zadejte své jméno a heslo, které jste dostali.</div>
-    <input id="loginName" type="text" class="login-input" placeholder="Jméno a příjmení" autocomplete="off" />
-    <input id="loginPass" type="password" class="login-input" placeholder="Heslo" autocomplete="off" />
-    <button id="loginBtn" class="login-btn">Pokračovat</button>
-    <div id="loginError" class="login-error"></div>
-  </div>
-</div>
-
-<header id="appHeader" style="display:none;">
-  <div>
-    <div class="brand">
-      <img src="rohlik-logo.png" alt="Rohlík.cz" onerror="this.style.display='none'">
-      <div class="title-block">
-        <div><strong>Rohlík.cz – Test z češtiny (A1)</strong></div>
-        <small id="answeredInfo">Zodpovězeno 0 / 25</small>
-        <span id="lastResult" class="badge-last" style="display:none;"></span>
-      </div>
-    </div>
-    <div class="progress-wrap"><div class="progress-bar" id="progressBar"></div></div>
-  </div>
-  <div class="timer">
-    <span id="timer" class="timer-time">30:00</span>
-    <button id="pauseBtn" title="Pauza / pokračovat">II</button>
-    <button id="themeBtn" class="theme-btn" title="Přepnout téma">🌙</button>
-  </div>
-</header>
-
-<div class="onboarding" id="onboarding" style="display:none;">
-  <div class="onb-number">1</div><div>25 otázek, čas 30 minut.</div>
-  <div class="onb-number">2</div><div>Potřebujete alespoň 20 správně.</div>
-  <div class="onb-number">3</div><div>Text k úloze je vpravo.</div>
-</div>
-
-<div class="wrap" id="appWrap" style="display:none;">
-  <div class="left" id="questions"></div>
-</div>
-
-<div class="text-panel" id="textPanel" style="display:none;">
-  <h3>Text k otázce</h3>
-  <small>Klikni na otázku vlevo</small>
-  <div id="textBox" style="white-space:pre-line; margin-top:6px;"></div>
-  <div style="margin-top:10px; font-size:11px; color:var(--muted);">(QR kód nebo návod)</div>
-</div>
-
-<div class="actions" id="appActions" style="display:none;">
-  <button id="checkBtn" class="primary-btn">Vyhodnotit test</button>
-  <button id="newTestBtn" class="secondary-btn">Nový test</button>
-  <div id="result"></div>
-  <div id="missing" class="missing-msg"></div>
-</div>
-<div id="details"></div>
-
 <script>
-  const PASSWORD = "rohlik2025";
+  const PASSWORD_USER = "rohlik2025";
+  const PASSWORD_ADMIN = "rohlik-admin";
   const QUESTIONS_PER_TEST = 25;
   const MIN_SCORE = 20;
+  const SHEET_ENDPOINT = "https://script.google.com/macros/s/AKfycbyjy2NpeoAVwizn_hyc6s_ojn6NXQS0z86nRoQ1ZFE31ZTVOaRbnnAX--Nnj1JfdVO0/exec"; //
+
   let selected = [];
   let userName = "";
+  let isAdmin = false;
   let timeLeft = 30 * 60;
   let paused = false;
   let evaluated = false;
   let timerInterval = null;
+
   const savedTheme = localStorage.getItem("rohlik_test_theme");
   if (savedTheme === "dark") document.body.classList.add("dark");
+
+  let deviceId = localStorage.getItem("rohlik_test_device_id");
+  if (!deviceId) {
+    deviceId = "dev-" + Math.random().toString(36).substring(2) + Date.now();
+    localStorage.setItem("rohlik_test_device_id", deviceId);
+  }
+
+  const TEST_VERSION = "1.1.0";
 
   const QUESTION_BANK = [
     {question:"Kdo má narozeniny?",text:"Milá Jano,\n\nzvu Tě na oslavu svých narozenin. Oslava bude v sobotu 7. 6. od 19:30 u mě doma. Bude tam jídlo a přijde i můj bratr Jakub. Zvířata nesmí.\n\nTěším se na Tebe.\nTomáš",answers:["Jana","Jakub","Tomáš","Nikdo"],correct:"Tomáš"},
@@ -347,6 +223,7 @@
       title.textContent = "Otázka " + (index+1) + " z " + QUESTIONS_PER_TEST + ": " + q.question;
       box.appendChild(title);
       const answersDiv = document.createElement("div");
+      answersDiv.className = "answers";
       answers.forEach(ans=>{
         const id = "q"+index+"_"+ans;
         const label = document.createElement("label");
@@ -406,6 +283,20 @@
     },1000);
   }
 
+  function sendResultToSheet(payload){
+    if (!SHEET_ENDPOINT || SHEET_ENDPOINT === "SEM_VLOŽ_TU_URL_Z_APPS_SCRIPT") return;
+    try {
+      fetch(SHEET_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      console.error("Sheet send error", e);
+    }
+  }
+
   function evaluate(){
     const missing = [];
     selected.forEach((q,i)=>{
@@ -415,34 +306,50 @@
     const missDiv = document.getElementById("missing");
     if (missing.length){
       missDiv.textContent = "Nezodpovězené otázky: " + missing.join(", ");
+      const box = document.querySelector('.question-box[data-index="'+(missing[0]-1)+'"]');
+      if (box) box.scrollIntoView({behavior:"smooth", block:"center"});
       return;
     } else {
       missDiv.textContent = "";
     }
+
     let score = 0;
     let wrong = [];
     selected.forEach((q,i)=>{
       const chosen = document.querySelector('input[name="q'+i+'"]:checked');
       const box = document.querySelector('.question-box[data-index="'+i+'"]');
+      box.classList.remove("correct","wrong");
+      const oldAdminInfo = box.querySelector(".correct-answer-admin");
+      if (oldAdminInfo) oldAdminInfo.remove();
+
       if (chosen && chosen.value === q.correct){
         score++;
         box.classList.add("correct");
-        box.classList.remove("wrong");
       } else {
         wrong.push({i:i+1, q:q.question, c:q.correct});
         box.classList.add("wrong");
-        box.classList.remove("correct");
+      }
+
+      if (isAdmin){
+        const info = document.createElement("div");
+        info.className = "correct-answer-admin";
+        info.textContent = "Správně: " + q.correct;
+        box.appendChild(info);
       }
     });
+
     const result = document.getElementById("result");
     const percent = Math.round(score / QUESTIONS_PER_TEST * 100);
-    if (score >= MIN_SCORE){
+    const passed = score >= MIN_SCORE;
+
+    if (passed){
       result.textContent = "Výsledek: " + score + "/" + QUESTIONS_PER_TEST + " (" + percent + " %) – PROŠEL(A).";
       result.style.color = "green";
     } else {
       result.textContent = "Výsledek: " + score + "/" + QUESTIONS_PER_TEST + " (" + percent + " %) – NEPROŠEL(A). Potřebujete alespoň " + MIN_SCORE + " bodů.";
       result.style.color = "red";
     }
+
     const details = document.getElementById("details");
     if (wrong.length){
       let html = "<h4>Nesprávné / nezodpovězené otázky:</h4><ul>";
@@ -458,17 +365,44 @@
     } else {
       details.style.display = "none";
     }
-    const resObj = { name: userName, score: score, total: QUESTIONS_PER_TEST, percent: percent, date: new Date().toISOString() };
+
+    const resObj = {
+      name: userName,
+      role: isAdmin ? "admin" : "user",
+      score: score,
+      total: QUESTIONS_PER_TEST,
+      percent: percent,
+      passed: passed,
+      timeSpentSec: 30*60 - timeLeft,
+      deviceId: deviceId,
+      userAgent: navigator.userAgent || "",
+      version: TEST_VERSION,
+      date: new Date().toISOString()
+    };
+
     localStorage.setItem("rohlik_cestina_test_last", JSON.stringify(resObj));
     showLastResultBadge();
+
+    sendResultToSheet(resObj);
+
     evaluated = true;
   }
 
   document.getElementById("loginBtn").addEventListener("click", ()=>{
     const name = document.getElementById("loginName").value.trim();
     const pass = document.getElementById("loginPass").value.trim();
-    if (!name){ document.getElementById("loginError").textContent = "Zadejte jméno."; return; }
-    if (pass !== PASSWORD){ document.getElementById("loginError").textContent = "Nesprávné heslo."; return; }
+    if (!name){
+      document.getElementById("loginError").textContent = "Zadejte jméno.";
+      return;
+    }
+    if (pass === PASSWORD_USER){
+      isAdmin = false;
+    } else if (pass === PASSWORD_ADMIN){
+      isAdmin = true;
+    } else {
+      document.getElementById("loginError").textContent = "Nesprávné heslo.";
+      return;
+    }
     userName = name;
     document.getElementById("loginScreen").style.display = "none";
     document.getElementById("appHeader").style.display = "";
@@ -477,9 +411,27 @@
     document.getElementById("appActions").style.display = "";
     document.getElementById("onboarding").style.display = "flex";
     showLastResultBadge();
+
+    if (isAdmin){
+      const brand = document.querySelector(".brand .title-block");
+      if (brand && !document.getElementById("adminBadgeTop")){
+        const span = document.createElement("span");
+        span.id = "adminBadgeTop";
+        span.textContent = "ADMIN režim";
+        span.style.marginLeft = "8px";
+        span.style.fontSize = "11px";
+        span.style.padding = "2px 6px";
+        span.style.borderRadius = "999px";
+        span.style.background = "rgba(220,53,69,0.12)";
+        span.style.color = "#b02a37";
+        brand.appendChild(span);
+      }
+    }
+
     buildQuestions();
     startTimer();
   });
+
   document.getElementById("loginPass").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("loginBtn").click(); });
   document.getElementById("loginName").addEventListener("keydown", e=>{ if(e.key==="Enter") document.getElementById("loginBtn").click(); });
 
@@ -504,6 +456,11 @@
     document.getElementById("themeBtn").textContent = isDark ? "☀️" : "🌙";
   });
   if (document.body.classList.contains("dark")) document.getElementById("themeBtn").textContent = "☀️";
+
+  window.addEventListener("beforeunload", function (e) {
+    if (!evaluated){
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
 </script>
-</body>
-</html>
