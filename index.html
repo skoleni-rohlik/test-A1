@@ -142,51 +142,88 @@ const QUESTIONS_TO_SHOW = 25;
 const MAX_ERRORS = 6;                
 const TIME_LIMIT_MINUTES = 45;       
 
-// BANKA OTÁZEK
+// MASIVNÍ BANKA OTÁZEK - ÚROVEŇ A1/A2 + PŘESNÉ FIREMNÍ PROCESY
 const BANK = [
-  { q: "Zákazník se ptá: „Kde jste byl tak dlouho?“ Co odpovíš?", a: ["Byl jsem v koloně, omlouvám se.", "Být kolona.", "Jsem tam.", "Nepřijedu."], c: 0 },
-  { q: "Jak řekneš, že jsi omylem odvezl špatnou tašku?", a: ["Já taška špatně.", "Omlouvám se, vzal jsem omylem jinou tašku.", "Vezmete si to.", "Taška není moje."], c: 1 },
-  { q: "Zákazník říká: „Minule mi chybělo mléko.“ Co odpovíš?", a: ["To není můj problém, já dnes vezu vše.", "Zavoláte Rohlík.", "To mě mrzí, dnes už by mělo být vše v pořádku.", "Já minule nebyl."], c: 2 },
-  { q: "Jak řekneš zákazníkovi, co se stalo s rozbitým zbožím?", a: ["Rozbilo se to, když jsem brzdil.", "Ono se to rozbít.", "Já to rozbil.", "To bylo už."], c: 0 },
-  { q: "Jak se slušně zeptáš zákazníka, jestli mu můžeš nákup donést až do kuchyně?", a: ["Dám to do kuchyně?", "Mohl bych vám to položit až na stůl do kuchyně?", "Chcete to tam?", "Dejte to sem."], c: 1 },
-  { q: "Zákazník tě prosí: „Mohl byste mi prosím vzít s sebou dolů tenhle odpad?“ Jak odpovíš?", a: ["Ne, nebudu.", "Omlouvám se, ale to bohužel nesmíme dělat.", "Dejte mi to.", "Já to zahodím."], c: 1 },
-  { q: "Jak slušně požádáš o podpis na terminál?", a: ["Podepište se mi tady, prosím.", "Podpis!", "Musíte podepsat.", "Dáte podpis sem."], c: 0 },
-  { q: "Zákazník se ptá: „Kdybych chtěl ještě něco přidat, jde to?“", a: ["Nejde to.", "Bohužel, teď už to přidat nelze.", "Já nevím.", "Musíte koupit."], c: 1 },
-  { q: "V aplikaci čteš: „Zvoňte na Novákovi, ale nákup nechte u dveří Dvořáků v 1. patře.“ Co uděláš?", a: ["Zazvoním na Nováky a nechám tašky u Dvořáků v 1. patře.", "Zazvoním na Dvořáky a nechám tašky u Nováků.", "Nechám vše dole.", "Zazvoním na všechny."], c: 0 },
-  { q: "Poznámka: „Zavolejte mi, až zaparkujete, a počkejte u auta, přijdu si pro to.“ Co uděláš?", a: ["Půjdu nahoru k bytu.", "Zaparkuji, zavolám a čekám dole u auta.", "Odjedu pryč.", "Nechám nákup na chodníku."], c: 1 },
-  { q: "Poznámka: „Vchod je ze dvora, projděte brankou, kterou si otevřete kódem 1478.“", a: ["Zavolám, ať přijdou na ulici.", "Zadám kód 1478 do branky a půjdu do dvora.", "Zazvoním u hlavní ulice.", "Nákup nechám před brankou."], c: 1 },
-  { q: "Poznámka: „Zákaz vjezdu do areálu. Nechte auto před závorou a dojděte pěšky.“", a: ["Budu čekat v autě.", "Vejedu dovnitř, závoru objedu.", "Zaparkuji před závorou a nákup donesu pěšky.", "Odvezu nákup zpět."], c: 2 },
-  { q: "Zákazník tvrdí: „Ale já už to platil kartou online!“ Ty máš v aplikaci 'Platba hotově'. Jak zareaguješ?", a: ["Zaplaťte to znovu.", "To mě mrzí, v systému vidím platbu hotově. Můžu zavolat na dispečink a ověřit to.", "Lžete mi.", "Dobře, nemusíte platit."], c: 1 },
-  { q: "Zákazník ti dává stravenky, ale nákup je plný drogerie. Co mu řekneš?", a: ["Nechci to.", "Stravenkami bohužel můžete platit jen za potraviny, nikoliv za drogerii.", "Dobře, vezmu to.", "Dejte mi peníze."], c: 1 },
-  { q: "Nákup stojí 1250 Kč. Zákazník ti dává 2000 Kč, ty ale nemáš peníze na vrácení.", a: ["Omlouvám se, ale nemám vám jak vrátit. Mohli bychom to zkusit zaplatit kartou?", "Zajdu rozměnit do obchodu.", "Dám vám to zdarma.", "Nemám drobné, na shledanou."], c: 0 },
-  { q: "Zákazníkovi jsi omylem předal jednu cizí tašku a už jsi odjel. Zjistíš to u dalšího zákazníka.", a: ["Zahodím ji.", "Ihned zavolám na dispečink, omluvím se za chybu a domluvím se, co dál.", "Předám ji dalšímu zákazníkovi.", "Dělám, že o tom nevím."], c: 1 },
-  { q: "Dispečer se ptá: „Za jak dlouho zhruba dorazíš na další adresu?“ Odpovíš:", a: ["Je to tam.", "Budu tam přibližně za deset minut.", "Jedu autem.", "Dneska nepřijedu."], c: 1 },
-  { q: "Aplikace ukazuje „Objížďka - prodloužení trasy o 12 minut“. Co uděláš?", a: ["Budu pokračovat v klidu, ale zavolám zákazníkovi, že dorazím o něco později.", "Pojedu přes zákaz vjezdu.", "Zruším objednávku.", "Zavolám policii."], c: 0 },
-  { q: "V poznámce k adrese je: „Slepá ulice, nedá se tam otočit.“", a: ["Pojedu tam rychle.", "Zacouvám tam, nebo zaparkuji před ulicí a nákup dojdu.", "Zavolám zákazníkovi, ať si to odnese z hlavní ulice.", "Vůbec tam nepojedu."], c: 1 },
-  { q: "Zákazník ti volá: „Kurýre, zapomněl jste mi tu zálohované lahve!“ (Vratné obaly).", a: ["Ty nebereme.", "Omlouvám se, úplně jsem na to zapomněl. Mám se teď vrátit, nebo to necháme na příště?", "Vyhoďte je.", "Přivezte je do skladu."], c: 1 },
-  { q: "Zákazník se zlobí, že dostal náhradu za produkt, který nebyl. Co řekneš?", a: ["Berte, nebo nechte být.", "Omlouvám se, původní produkt nebyl skladem. Pokud tuto náhradu nechcete, rovnou ji stornuji a nebudete ji platit.", "Skladníci jsou hloupí.", "Je to to samé."], c: 1 },
-  { q: "Doplň větu tak, aby dávala smysl: „___ byste mi prosím otevřít i ty druhé dveře?“", a: ["Můžete", "Mohl", "Chcete", "Máte"], c: 1 },
-  { q: "Doplň větu: „Pokud to nepůjde zaplatit kartou, ___ to zaplatit hotově?“", a: ["byste mohl", "můžete", "budete moci", "chtít"], c: 2 },
-  { q: "Doplň: „Tašky s mraženým zbožím vždy ___ nahoru, aby nerozmrzly.“", a: ["dávat", "dávám", "dám", "dal"], c: 1 },
-  { q: "Co znamená, když se zákazník zeptá: „Do kdy má ta šunka trvanlivost?“", a: ["Ptá se, jak je šunka velká.", "Ptá se, do jakého data se může šunka jíst.", "Ptá se, odkud šunka je.", "Ptá se, z jakého masa je."], c: 1 },
-  { q: "Zákazník říká: „To už je podruhé tento měsíc, co máte zpoždění!“", a: ["Já za to nemůžu.", "Velice se omlouvám za nepříjemnosti. Dnes je bohužel komplikovaná doprava.", "Stěžujte si na Rohlík.", "Buďte rád, že jsem přijel."], c: 1 },
-  { q: "Zákazník ti nese papírové tašky z minulého nákupu. Co uděláš?", a: ["Řeknu, že je nechci.", "S úsměvem je převezmu k recyklaci a poděkuji.", "Vyhodím je do popelnice.", "Zavolám na sklad."], c: 1 },
-  { q: "Co znamená nápis na zvonku: „Nefunguje, zvoňte vedle“?", a: ["Mám zaklepat na okno.", "Zvonek je rozbitý, mám zazvonit na souseda.", "Mám čekat.", "Mám zavolat policii."], c: 1 },
-  { q: "Dispečink ti říká: „U zákazníka je přeplatek z minula, doplácí jen 50 Kč.“", a: ["Řeknu zákazníkovi, že má přeplatek a doplácí pouze 50 Kč.", "Vezmu si od něj plnou částku a zbytek si nechám.", "Zruším platbu.", "Řeknu mu, že to má zdarma."], c: 0 },
-  { q: "Zákazník: „Máte to tu s dýškem.“ (Dává ti 500 Kč, nákup stál 460 Kč).", a: ["Spropitné nemohu přijmout.", "Moc děkuji, vážím si toho. Hezký den!", "To je jen 40 korun, to je málo.", "Vrátím mu 40 Kč přesně."], c: 1 },
-  { q: "Jak odpovíš na: „Dobrý den.“?", a: ["Dobrý den.", "Dobrou noc.", "Promiňte.", "Nevím."], c: 0 },
-  { q: "Co řekneš při předávání nákupu?", a: ["Tady je váš nákup.", "To je moje.", "Zaplaťte.", "Nashledanou."], c: 0 },
-  { q: "Když zákazníkovi nerozumíš, co řekneš?", a: ["Mám hlad.", "Prosím, zopakujte to pomalu.", "Nevím, kde jsem.", "Zavěsím telefon."], c: 1 },
-  { q: "Nemůžeš najít vchod. Voláš zákazníkovi. Jak začneš hovor?", a: ["Kde jste?", "Dobrý den, tady kurýr Rohlíku. Nemohu najít váš vchod.", "Haló, otevřít!", "Pojďte dolů."], c: 1 },
-  { q: "Máš zpoždění v koloně. Voláš zákazníkovi. Co řekneš?", a: ["Přijedu pozdě, je tam moc aut.", "Dobrý den, nepřijedu.", "Dobrý den, omlouvám se, jsem v koloně. Přijedu asi za 15 minut.", "Mám zpoždění, čekejte."], c: 2 },
-  { q: "Voláš zákazníkovi, ale zvedne to dítě. Co řekneš?", a: ["Dej mi maminku.", "Ahoj, tady Rohlík. Můžeš prosím předat telefon někomu dospělému?", "Kde jsou rodiče?", "Položím to."], c: 1 },
-  { q: "Poznámka: „Nezvoňte, spí miminko. Nechte za dveřmi.“ Co uděláš?", a: ["Zazvoním.", "Položím nákup u dveří a potichu odejdu.", "Zavolám zákazníkovi.", "Zaklepu na dveře."], c: 1 },
-  { q: "Během cesty se rozbilo vajíčko. Co řekneš zákazníkovi?", a: ["Něco tam teče.", "To není moje chyba.", "Moc se omlouvám, rozbilo se vejce. Hned udělám vratku v aplikaci.", "Vajíčka nemáte."], c: 2 },
-  { q: "Zákazník se ptá: „Máte u sebe terminál?“ Na co se ptá?", a: ["Na letiště.", "Jestli mám přístroj na platbu kartou.", "Jestli mám mobil.", "Na drobné peníze."], c: 1 },
-  { q: "Jak řekneš zákazníkovi, aby zaplatil kartou?", a: ["Karta tady.", "Dejte kartu sem.", "Můžete přiložit kartu k terminálu, prosím?", "Zaplaťte."], c: 2 },
-  { q: "Co znamená dopravní značka „Zákaz vjezdu“?", a: ["Sem musím jet.", "Sem můžu zaparkovat.", "Tady je obchod.", "Sem nesmím s autem vjet."], c: 3 }
-];
 
+  // --- 1. FIREMNÍ PROCESY (Kdo co řeší - naprosto klíčové) ---
+  { q: "Auto nestartuje, máš defekt (píchlé kolo) nebo jinou technickou poruchu. Komu zavoláš?", a: ["Technikům.", "Zákaznické podpoře.", "Dispečinku.", "Správci vybavení."], c: 0 },
+  { q: "Zákazník je naštvaný, chybí mu věci z nákupu a chce si stěžovat (reklamace). Kam ho odkážeš?", a: ["Omluvím se a poprosím ho, ať kontaktuje Zákaznickou podporu.", "Ať zavolá na Dispečink.", "Ať zavolá KKS.", "Na Správce vybavení."], c: 0 },
+  { q: "Zablokoval se ti firemní telefon, zapomněl jsi PIN k tankovací kartě nebo potřebuješ zvýšit její limit. Kdo to řeší?", a: ["Správce vybavení.", "Technici.", "Dispečink.", "KKS."], c: 0 },
+  { q: "Za jakých okolností smíš telefonicky volat na Dispečink?", a: ["Volám jim jen tehdy, když nemohu pokračovat v trase (např. vážná nehoda, překládka zboží). Jinak komunikuji přes SMS.", "Volám jim kvůli každému zpoždění.", "Volám jim kvůli defektu auta.", "Volám jim, když zákazník není doma."], c: 0 },
+  { q: "Máš zpoždění na trase a potřebuješ ho řešit, nebo odevzdáváš vratné obaly. Na jaké oddělení se obrátíš?", a: ["Na KKS.", "Na Dispečink.", "Na Techniky.", "Na Zákaznickou podporu."], c: 0 },
+  { q: "Musel jsi na benzínce natankovat za hotové peníze. S kým to budeš řešit?", a: ["Se Správcem vybavení.", "Se Zákaznickou podporou.", "S KKS.", "S Technikem."], c: 0 },
+  { q: "Máš drobný problém na trase (ale můžeš pokračovat) a potřebuješ to oznámit Dispečinku. Jak to uděláš?", a: ["Pošlu jim SMS.", "Budu jim pořád volat, dokud to nezvednou.", "Zavolám KKS ať jim to vyřídí.", "Nijak, to není důležité."], c: 0 },
+  { q: "Zákazník se ptá, proč minule nedostal kompenzaci za rozbité vejce. Co odpovíš?", a: ["Omlouvám se, ale reklamace řeší Zákaznická podpora, prosím kontaktujte je.", "To musíte řešit s KKS.", "Protože lžete.", "Dám vám své peníze."], c: 0 },
+
+  // --- 2. SITUACE S ALKOHOLEM A VĚKEM (18+) ---
+  { q: "V nákupu je alkohol a aplikaci vyskočí kontrola věku. Otevře ti 15letý chlapec. Co uděláš?", a: ["Alkohol stornuji a odvezu zpět, nebo ho předám jen dospělé osobě s platným dokladem.", "Dám mu nákup, je to jedno.", "Řeknu mu, ať mi ukáže fotku občanky rodičů.", "Nechám to za dveřmi."], c: 0 },
+  { q: "Jak se slušně zeptáš mladého zákazníka na občanský průkaz kvůli alkoholu?", a: ["Dobrý den, máte tam alkohol. Mohl bych prosím vidět váš průkaz totožnosti?", "Ukaž občanku!", "Kolik ti je?", "Dám ti to jen, když ukážeš pas."], c: 0 },
+  { q: "Zákazník nemá u sebe občanku, vypadá velmi mladě a v nákupu jsou cigarety. Co uděláš?", a: ["Omlouvám se, ale bez průkazu totožnosti vám tabák nesmím předat. Zboží musím stornovat.", "Tak mi to podepište a vezměte si to.", "Počkám, až najdete rodný list.", "Dám vám to, věřím vám."], c: 0 },
+  { q: "Zákazník ukazuje fotku občanky v mobilu, aby dokázal, že mu je 18 let. Stačí to?", a: ["Ne, musím vidět originál průkazu, nebo oficiální aplikaci eDoklady.", "Ano, fotka v galerii stačí.", "Ano, pokud je fotka barevná.", "Ne, musí mít cestovní pas."], c: 0 },
+
+  // --- 3. PROBLÉMY A REKLAMACE NA MÍSTĚ ---
+  { q: "Při předávání zákazník zjistí, že jsou rajčata plesnivá. Co mu řekneš?", a: ["Moc se omlouvám, hned ta rajčata v aplikaci stornuji a peníze se vám vrátí na účet.", "To je normální.", "Běžte si je vyreklamovat na Zákaznickou podporu.", "Já je nebalil."], c: 0 },
+  { q: "Rozbila se ti lahev s olejem a zničila půlku nákupu. Co řekneš zákazníkovi?", a: ["Velice se omlouvám, rozbité a zničené věci hned stornuji, abyste dostal peníze zpět.", "Omlouvám se, zavolejte si na Zákaznickou podporu.", "Tady to máte, je to trochu mastné.", "To už tak bylo připravené ve skladu."], c: 0 },
+  { q: "Zákazníkovi chybí drahé maso. Ty ho v autě nemáš. Co řekneš?", a: ["Omlouvám se, maso chybí. Položku stornuji. Pokud s tím máte další potíže, kontaktujte Zákaznickou podporu.", "Někdo ho asi ukradl.", "Zavolejte si na Dispečink.", "Zítra vám ho dovezu."], c: 0 },
+  { q: "V tašce je rozlité mléko, ale zákazník říká: „To nevadí, já si to umyju.“ Co uděláš ty?", a: ["Zákazníkovi poděkuji, ale mléko v aplikaci stejně stornuji, aby neplatil za poškozené zboží.", "Poděkuji a odjedu.", "Řeknu mu, že je hloupý.", "Zavolám na Techniky."], c: 0 },
+  { q: "Zákazník chce vrátit zboží, které si koupil včera. Co mu řekneš?", a: ["Zboží od vás převzít nemohu, prosím vyřešte reklamaci online přes Zákaznickou podporu.", "Dejte mi ho, já ho vrátím do skladu.", "Hodím to do koše.", "Zavolejte na KKS."], c: 0 },
+
+  // --- 4. GRAMATIKA A2 A ZDVOŘILOST ---
+  { q: "Doplň zdvořilou větu: „___ byste mi prosím otevřít i ty druhé dveře?“", a: ["Mohl", "Můžete", "Chcete", "Máte"], c: 0 },
+  { q: "Doplň minulý čas: „Omlouvám se, ___ jsem vzít ještě jednu tašku. Hned pro ni dojdu.“", a: ["zapomněl", "zapomínám", "nezapomněl", "zapomenout"], c: 0 },
+  { q: "Doplň větu: „Pokud to nepůjde zaplatit kartou, ___ to zaplatit hotově?“", a: ["můžete", "byste mohl", "budete moci", "chtít"], c: 0 },
+  { q: "Jak slušně požádáš o podpis na displej telefonu?", a: ["Podepište se mi sem prstem, prosím.", "Dejte mi podpis.", "Tady to podepiš.", "Musíte to podepsat teď."], c: 0 },
+  { q: "Zákazník má plné ruce a ptá se, jestli mu vyložíš nákup do lednice. Jak zdvořile odmítneš?", a: ["Nezlobte se, to bohužel z hygienických a časových důvodů nemohu, nákup vám položím zde na stůl.", "Ne, to nedělám.", "Na to nemám čas.", "Vyložte si to sám."], c: 0 },
+  { q: "Zákazník je rozzlobený kvůli zpoždění. Která věta je nejvhodnější?", a: ["Velice se omlouvám za zpoždění, byla hrozná dopravní situace.", "Uklidněte se, vždyť jsem tady.", "Mohl jste si nakoupit sám.", "Stěžujte si na KKS."], c: 0 },
+  { q: "Doplň: „Chtěl ___ se zeptat, jestli máte připravený kód ke dveřím.“", a: ["bych", "jsem", "budu", "mám"], c: 0 },
+
+  // --- 5. NAVIGACE, ADRESY A POZNÁMKY ZÁKAZNÍKA ---
+  { q: "Poznámka: „Prosím, nechte auto na blikačkách a projděte průchodem do dvora.“ Co uděláš?", a: ["Zastavím na hlavní, zapnu výstražná světla a půjdu pěšky průchodem.", "Vejedu s autem až do dvora.", "Zavolám zákazníkovi, ať si pro to přijde na ulici.", "Zruším objednávku."], c: 0 },
+  { q: "Poznámka: „Slepá ulice, nedá se tam otočit.“ Jak to vyřešíš?", a: ["Zacouvám tam, nebo zaparkuji před ulicí a donesu to pěšky.", "Pojedu tam rychle.", "Nechám to na nejbližší křižovatce.", "Zavolám na Dispečink."], c: 0 },
+  { q: "Co znamená nápis na zvonku: „Zvonek nefunguje, volejte na mobil“?", a: ["Nemám zvonit, ale rovnou vytočit telefonní číslo zákazníka.", "Mám silně klepat na dveře.", "Mám křičet do okna.", "Mám nákup nechat před domem."], c: 0 },
+  { q: "Poznámka: „Vchod z ulice Jarní, i když je adresa Letní.“ Kde budeš hledat dveře?", a: ["Najdu vchod, který je z ulice Jarní.", "Budu je hledat na ulici Letní.", "Pojedu zpět na sklad.", "Zavolám Zákaznickou podporu."], c: 0 },
+  { q: "Aplikace píše: „Doručení na recepci, zákazník již zaplatil online.“ Komu a jak předáš nákup?", a: ["Předám nákup recepčnímu a rovnou odcházím, nic nevybírám.", "Budu po recepčním chtít zaplatit hotově.", "Nechám to venku na ulici.", "Musím najít zákazníka osobně."], c: 0 },
+  { q: "Zákazník má v poznámce rakouské číslo začínající +43. Co to znamená?", a: ["Že mu musím volat přes aplikaci, nebo ručně vytočit číslo s touto předvolbou.", "Že musím mluvit německy.", "Že mu nemohu zavolat.", "Že je objednávka zrušena."], c: 0 },
+  { q: "Poznámka: „Zazvoňte a nechte nákup u dveří.“ Zákazník ale zrovna vychází ven. Co uděláš?", a: ["Slušně ho pozdravím a nákup mu předám osobně.", "Nechám to na zemi a uteču.", "Řeknu mu, ať jde dovnitř, že to mám nechat u dveří.", "Zavolám Zákaznickou podporu."], c: 0 },
+
+  // --- 6. PENÍZE, TERMINÁLY A DÝŠKA ---
+  { q: "Zákazník chce platit nákup (1400 Kč) bankovkou 5000 Kč, ale ty tolik peněz na vrácení nemáš. Co slušně řekneš?", a: ["Omlouvám se, ale nemám vám jak vrátit z tak velké bankovky. Nemohl byste platit kartou?", "Nechci to, dejte mi drobné.", "Zajdu do obchodu rozměnit.", "Vezmu si to a zbytek vám pošlu na účet."], c: 0 },
+  { q: "Zákazník má platit 430 Kč. Dává ti 500 Kč a říká: „To je v pořádku.“ Co to znamená?", a: ["70 Kč mi dává jako spropitné (dýško) a nevracím nic.", "Mám mu vrátit 70 Kč.", "Mám nákup stornovat.", "Chce platit kartou."], c: 0 },
+  { q: "Terminál napíše „Transakce zamítnuta“. Jak to zákazníkovi sdělíš?", a: ["Omlouvám se, platba neprošla. Můžeme to zkusit ještě jednou?", "Máte tam málo peněz.", "Karta nefunguje, dejte mi hotovost.", "Zavolejte do své banky, odjíždím."], c: 0 },
+  { q: "V aplikaci vidíš „Platba hotově“, ale zákazník říká: „Nemám hotovost, můžu to zaplatit kartou?“", a: ["Ano, samozřejmě, přepnu to v terminálu na platbu kartou.", "Bohužel ne, musíte platit jen hotově.", "To je problém, volám Zákaznickou podporu.", "Ne, to nejde."], c: 0 },
+  { q: "Zákazník ti dává stravenky (poukázky na jídlo), ale kupuje i prací prášek a šampon. Co mu musíš vysvětlit?", a: ["Stravenkami můžete platit jen za potraviny. Drogerii musíte doplatit hotově nebo kartou.", "To nevadí, beru všechno.", "Stravenky vůbec nebereme.", "Musíte to celé zaplatit kartou."], c: 0 },
+  { q: "Zákazník platil nákup online, ale na místě říká: „Tady máte stovku za tu rychlost.“ Co to je?", a: ["To je spropitné (dýško) pro mě.", "To jsou peníze pro Rohlík.", "Je to doplacení nákupu.", "Snaží se mě uplatit."], c: 0 },
+
+  // --- 7. TELEFONOVÁNÍ A ZÁKLADNÍ KOMUNIKACE ---
+  { q: "Stojíš před velkým domem a nevíš, jaký má zákazník zvonek. Voláš mu. Jak hovor začneš?", a: ["Dobrý den, tady kurýr Rohlíku. Jsem před vaším domem, ale nemohu najít váš zvonek. Jaké jméno tam máte?", "Kde máte zvonek?", "Pojďte dolů.", "Otevřete!"], c: 0 },
+  { q: "Zákazník to zvedne a špatně ho slyšíš (vypadává signál). Jak mu to česky řekneš?", a: ["Omlouvám se, je tu velmi špatný signál a špatně vás slyším. Můžete to zopakovat?", "Haló! Mluvte!", "Nic neslyším, ruším objednávku.", "Zavolám na Dispečink."], c: 0 },
+  { q: "Zákazník říká do telefonu: „Promiňte, zapomněl jsem, už jedu domů. Budu tam za 5 minut.“ Co uděláš?", a: ["Rozumím, 5 minut na vás počkám před domem.", "Nebudu čekat, jedu pryč.", "Nechám to na chodníku.", "Odvezu to do skladu."], c: 0 },
+  { q: "Do telefonu se ozve anglicky hovořící zákazník: „Hello, I don't speak Czech.“ Jak odpovíš?", a: ["Hello, this is Rohlík courier. I am in front of your building.", "Musíte mluvit česky.", "Nerozumím.", "Zavolám Zákaznickou podporu."], c: 0 },
+  { q: "Když zákazníkovi nerozumíš dlouhou českou větu, co řekneš?", a: ["Prosím, zopakujte to pomalu, ještě se učím česky.", "Mám hlad.", "Nevím, kde jsem.", "Zavěsím telefon."], c: 0 },
+  { q: "Zákazník tě prosí: „Můžete mi ty tašky položit tady na botník?“ Jak odpovíš?", a: ["Ano, samozřejmě. Tady to máte.", "Ne.", "Co je botník?", "Položím to na zem."], c: 0 },
+
+  // --- 8. SPECIFIKA KURÝRA (Zóny, tašky, zpoždění) ---
+  { q: "Co to jsou „teplotní zóny“ v autě a proč jsou důležité?", a: ["Rozdělují auto na mrazák, lednici a suché zboží, aby se potraviny nezkazily.", "Jsou to místa, kde kurýr spí.", "Je to topení pro kurýra.", "Aby auto lépe jelo."], c: 0 },
+  { q: "Zákazník má objednané 4 balíky těžkých vod a bydlí ve 4. patře bez výtahu. Máš povinnost mu to vynést?", a: ["Ano, donáška až ke dveřím bytu je naše standardní služba.", "Ne, nechám to v přízemí.", "Zavolám mu, ať mi přijde pomoct.", "Nechám to v autě."], c: 0 },
+  { q: "Všimneš si, že ti v aplikaci svítí upozornění na blížící se zpoždění u dalšího zákazníka.", a: ["Dodržuji předpisy, bezpečnost je na prvním místě. Pokud nestíhám, řeším zpoždění v aplikaci nebo s KKS.", "Pojedu nebezpečně rychle.", "Zavolám Zákaznickou podporu ať to prodlouží.", "Zruším nákupy."], c: 0 },
+  { q: "Jak česky zákazníkovi oznámíš, že máš v autě další nákup a musíš už jet?", a: ["Omlouvám se, ale už musím pokračovat k dalším zákazníkům. Mějte se hezky.", "Musím jet, ahoj.", "Nemám na vás čas.", "Odcházím."], c: 0 },
+  { q: "Co znamená pojem „Storno položky na místě“?", a: ["Pokud je produkt poškozený nebo chybí, vymažu ho v aplikaci ze seznamu, aby za něj zákazník neplatil.", "Celý nákup se vrací do skladu.", "Znamená to, že zavolám na Správce vybavení.", "Zákazník stornoval auto."], c: 0 },
+  { q: "Co znamená nápis „Pozor, křehké“ na papírové tašce?", a: ["Že jsou uvnitř věci, které se snadno rozbijí (sklo, vajíčka), musím být opatrný.", "Že je taška těžká.", "Že je taška mokrá.", "Že to mám hodit."], c: 0 },
+
+  // --- 9. PRAVIDLA SILNICE A PARKOVÁNÍ ---
+  { q: "Dopravní značka „Zákaz zastavení“. Co pro tebe znamená?", a: ["Nesmím tam zastavit ani na minutu pro vyložení nákupu, hrozí pokuta.", "Můžu tam parkovat celý den.", "Můžu tam stát 15 minut.", "Můžu tam stát na blikačkách."], c: 0 },
+  { q: "Co znamená „Modrá zóna“ v Praze nebo Brně?", a: ["Zóna pro rezidenty. Jako kurýr musím dávat pozor na pravidla parkování, abych nedostal pokutu.", "Parkování je vždy zdarma.", "Zóna jen pro elektromobily Rohlíku.", "Místo na mytí aut."], c: 0 },
+  { q: "Zákazník ukazuje na tvé auto a říká: „Stojíte docela špatně, blokujete mě.“ Co uděláš?", a: ["Omluvím se a auto hned přeparkuji, abych nepřekážel.", "Řeknu mu, ať mlčí.", "Zavolám na KKS.", "Odjedu úplně pryč."], c: 0 },
+  { q: "Zákazník tě naviguje: „Zastavte hned za přechodem pro chodce.“ Můžeš to udělat?", a: ["Ne, parkování těsně před a za přechodem je zakázané a nebezpečné.", "Ano, pokud zapnu blikačky.", "Ano, vždycky.", "Jen v noci."], c: 0 },
+
+  // --- 10. EXTRA MIX ---
+  { q: "Zákazník si přeje tašky postavit na zem, ale venku sněží a je tam mokro. Co mu řekneš?", a: ["Upozorním ho, že papírové tašky v mokru prasknou, a raději mu je podám do ruky nebo za dveře.", "Dobře, dám je do sněhu.", "Zahodím je.", "Řeknu mu, ať si vezme plastové."], c: 0 },
+  { q: "Zákazník má na sobě respirátor a kašle. Říká: „Mám covid, nechte to tu.“", a: ["Popřeji mu brzké uzdravení, ustoupím dál a provedu bezkontaktní doručení bez podpisu.", "Odmítnu to doručit.", "Budu se s ním fotit.", "Zavolám Dispečink."], c: 0 },
+  { q: "Doplň gramatiku: „___ jste si přál platit hotově, nebo kartou?“", a: ["Chtěl", "Byl", "Měl", "Jste"], c: 0 },
+  { q: "Zákazník nese špinavé a roztrhané tašky na vrácení. Co řekneš?", a: ["Nezlobte se, recyklujeme pouze čisté a neporušené tašky. Tyto si prosím vyhoďte do tříděného odpadu sami.", "Vezmu je.", "Zavolám KKS.", "Nechci je."], c: 0 },
+  { q: "Zapomněl jsi u zákazníka svůj firemní terminál. Uvědomíš si to v autě. Co uděláš?", a: ["Vrátím se, omluvím se zákazníkovi a poprosím ho o vrácení terminálu.", "Koupím si nový.", "Zavolám Správci vybavení, že ho ukradli.", "Nechám to být."], c: 0 }
+
+];
 let current = 0;
 let score = 0;
 let testSet = [];
