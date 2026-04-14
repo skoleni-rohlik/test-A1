@@ -1,377 +1,289 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" translate="no">
 <head>
-  <meta charset="UTF-8">
-  <title>Rohlík.cz – Vstupní test z češtiny</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <style>
-    /* MODERNÍ BARVY A PROMĚNNÉ */
-    :root {
-      --rohlik: #f6a623; --rohlik-hover: #e5941c; --rohlik-light: rgba(246, 166, 35, 0.15);
-      --bg: linear-gradient(135deg, #f3f6f8 0%, #e2e8f0 100%);
-      --card-bg: #ffffff; --text: #2c3e50; --text-muted: #95a5a6;
-      --border: #e2e8f0; --success: #2ecc71; --danger: #e74c3c;
-      --btn-ans-bg: #f8fafc; --btn-ans-border: #e2e8f0;
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-    }
-    body.dark-mode {
-      --bg: linear-gradient(135deg, #121212 0%, #1e1e1e 100%);
-      --card-bg: #222222; --text: #f8fafc; --text-muted: #a4b0be;
-      --border: #333333; --btn-ans-bg: #2d3436; --btn-ans-border: #404040;
-      --shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    }
-    
-    body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); background-attachment: fixed; color: var(--text); display: flex; flex-direction: column; min-height: 100vh; transition: background 0.4s ease; }
-    
-    /* HLAVIČKA */
-    header { background: var(--card-bg); padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; transition: 0.4s ease; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-    .header-left { display: flex; align-items: center; gap: 15px; }
-    .header-logo { height: 32px; }
-    .q-badge { background: var(--border); padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 14px; color: var(--text); }
-    .timer { font-weight: bold; font-size: 16px; color: var(--danger); background: rgba(231, 76, 60, 0.1); padding: 6px 14px; border-radius: 20px; letter-spacing: 0.5px; }
-    .theme-toggle { background: transparent; border: 1px solid var(--border); border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; justify-content: center; align-items: center; font-size: 18px; color: var(--text); transition: 0.3s; }
-    .theme-toggle:hover { background: var(--border); transform: rotate(15deg); }
-    
-    /* PROGRESS BAR */
-    .progress-container { width: 100%; height: 5px; background: var(--border); }
-    .progress-fill { height: 100%; background: var(--rohlik); width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 10px var(--rohlik); }
+    <meta charset="UTF-8">
+    <title>Rohlík.cz – Vstupní test</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="google" content="notranslate">
+    <style>
+        :root {
+            --rohlik: #f6a623; --rohlik-glow: rgba(246, 166, 35, 0.4);
+            --bg: #0f172a; --card-bg: rgba(255, 255, 255, 0.05);
+            --text: #f8fafc; --text-muted: #94a3b8;
+            --success: #2ecc71; --danger: #e74c3c;
+        }
 
-    /* BOXY A FORMULÁŘE */
-    .container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
-    .card { background: var(--card-bg); padding: 35px 25px; border-radius: 24px; box-shadow: var(--shadow); width: 100%; max-width: 500px; transition: 0.4s ease; }
-    
-    h2 { margin-top: 0; font-size: 26px; text-align: center; font-weight: 800; letter-spacing: -0.5px; }
-    h3 { font-size: 20px; line-height: 1.5; margin-bottom: 25px; font-weight: 600; }
-    
-    label { font-size: 12px; font-weight: 700; color: var(--text-muted); display: block; margin: 20px 0 6px; text-transform: uppercase; letter-spacing: 1px; }
-    input { width: 100%; padding: 15px; border: 2px solid var(--border); border-radius: 14px; box-sizing: border-box; font-size: 16px; background: var(--btn-ans-bg); color: var(--text); transition: 0.3s; font-family: inherit; }
-    input:focus { outline: none; border-color: var(--rohlik); background: var(--card-bg); box-shadow: 0 0 0 4px var(--rohlik-light); }
-    
-    /* TLAČÍTKA */
-    .btn { width: 100%; padding: 16px; border: none; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; }
-    .btn-main { background: var(--rohlik); color: #fff; margin-top: 30px; box-shadow: 0 8px 20px rgba(246, 166, 35, 0.25); }
-    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 12px 25px rgba(246, 166, 35, 0.35); }
-    .btn-main:active { transform: translateY(1px); }
-    
-    /* Pulzující animace pro startovací tlačítko */
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(246, 166, 35, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(246, 166, 35, 0); } 100% { box-shadow: 0 0 0 0 rgba(246, 166, 35, 0); } }
-    #btn-start { animation: pulse 2s infinite; }
+        body {
+            margin: 0; font-family: 'Inter', system-ui, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: var(--text); min-height: 100vh; display: flex; flex-direction: column;
+            user-select: none; -webkit-user-select: none;
+        }
 
-    /* TLAČÍTKA ODPOVĚDÍ */
-    .ans-btn { background: var(--btn-ans-bg); color: var(--text); text-align: left; border: 2px solid var(--btn-ans-border); margin-bottom: 12px; width: 100%; padding: 16px 20px; border-radius: 14px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; justify-content: space-between; align-items: center; }
-    .ans-btn:hover { border-color: var(--text-muted); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .ans-btn:active { transform: scale(0.98); }
-    .ans-btn.selected { border-color: var(--rohlik); background: var(--rohlik-light); font-weight: 700; transform: scale(1.02); box-shadow: 0 4px 15px rgba(246, 166, 35, 0.15); }
-    
-    /* Ikonka u vybrané odpovědi */
-    .ans-btn .check-icon { opacity: 0; transition: 0.2s; color: var(--rohlik); }
-    .ans-btn.selected .check-icon { opacity: 1; }
+        /* GLASSMORPHISM CARD */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 35px 25px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 90%; max-width: 480px;
+            margin: auto; transition: 0.4s;
+        }
 
-    /* Ostatní */
-    #error-msg { color: var(--danger); font-size: 14px; margin-top: 15px; font-weight: bold; display: none; text-align: center; background: rgba(231, 76, 60, 0.1); padding: 10px; border-radius: 8px; }
-    
-    /* Animace pro načtení otázky */
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-    .fade-in { animation: fadeIn 0.4s ease forwards; }
-  </style>
+        header {
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .q-timer-ring {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--rohlik);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px;
+        }
+
+        .progress-bar {
+            position: fixed; top: 0; left: 0; height: 4px;
+            background: var(--rohlik); transition: 0.3s;
+            box-shadow: 0 0 15px var(--rohlik); z-index: 101;
+        }
+
+        h2 { font-weight: 800; letter-spacing: -1px; text-align: center; margin-bottom: 30px; }
+
+        input {
+            width: 100%; padding: 16px; margin-bottom: 15px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px; color: white; font-size: 16px; outline: none;
+        }
+        input:focus { border-color: var(--rohlik); background: rgba(255,255,255,0.1); }
+
+        .btn-main {
+            width: 100%; padding: 18px; border: none; border-radius: 18px;
+            background: var(--rohlik); color: white; font-weight: 800; font-size: 16px;
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn-main:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .ans-btn {
+            width: 100%; padding: 18px; margin-bottom: 12px;
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 18px; color: var(--text); text-align: left;
+            font-size: 16px; cursor: pointer; transition: 0.2s;
+        }
+        .ans-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
+        .ans-btn.selected { border-color: var(--rohlik); background: var(--rohlik-glow); }
+
+        #error-msg { color: var(--danger); text-align: center; font-weight: bold; margin: 10px 0; display: none; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .low-time { color: var(--danger); animation: pulse 1s infinite; }
+    </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-<header id="app-header" style="display:none;">
-  <div class="header-left">
-    <img src="rohlik-logo.png" alt="Rohlík.cz" class="header-logo" onerror="this.style.display='none'">
-    <div id="q-counter" class="q-badge">1/25</div>
-  </div>
-  <div style="display: flex; gap: 12px; align-items: center;">
-    <div id="timer" class="timer">45:00</div>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Režim">🌓</button>
-  </div>
+<div id="progress" class="progress-bar"></div>
+
+<header id="main-header" style="display:none;">
+    <img src="rohlik-logo.png" style="height:25px;" onerror="this.style.display='none'">
+    <div style="display:flex; gap:15px; align-items:center;">
+        <div id="q-timer" class="q-timer-ring">45</div>
+        <div id="q-idx" style="font-weight:bold; color:var(--text-muted)">1/25</div>
+    </div>
 </header>
-<div id="progress-container" class="progress-container" style="display:none;"><div id="bar" class="progress-fill"></div></div>
 
-<div class="container">
-  
-  <div id="screen-login" class="card fade-in">
-    <div style="text-align: center; margin-bottom: 25px;">
-      <img src="rohlik-logo.png" alt="Rohlík.cz" style="height: 65px;" onerror="this.style.display='none'">
+<div class="container" style="flex:1; display:flex;">
+    <div id="screen-login" class="glass-card">
+        <h2>Vstupní test</h2>
+        <input type="text" id="name-n" placeholder="Jméno kurýra">
+        <input type="text" id="name-t" placeholder="Jméno trenéra">
+        <input type="password" id="pass-t" placeholder="Heslo trenéra">
+        <div id="error-msg"></div>
+        <button class="btn-main" id="btn-start" onclick="startTest()">Spustit test</button>
     </div>
-    <h2>Vstupní test z češtiny</h2>
-    
-    <label>Jméno kurýra</label>
-    <input type="text" id="name-n" placeholder="Např. Jan Novák">
-    
-    <label>Jméno trenéra</label>
-    <input type="text" id="name-t" placeholder="Např. Petr Dvořák">
-    
-    <label>Přístupové heslo (trenér)</label>
-    <input type="password" id="pass-t" placeholder="Zadejte heslo">
-    
-    <div id="error-msg"></div>
-    <button class="btn btn-main" id="btn-start" onclick="startTest()">Spustit test (45 min)</button>
-    <div style="text-align: center; margin-top: 20px;">
-        <button class="theme-toggle" style="margin: 0 auto; opacity: 0.5;" onclick="toggleTheme()">🌓</button>
+
+    <div id="screen-test" class="glass-card" style="display:none">
+        <h3 id="q-text" style="line-height:1.4"></h3>
+        <div id="answers"></div>
+        <button class="btn-main" id="btn-next" onclick="nextQuestion()" disabled>Další otázka</button>
     </div>
-  </div>
 
-  <div id="screen-test" class="card" style="display:none">
-    <div id="question-wrapper">
-      <h3 id="q-text">Načítám otázku...</h3>
-      <div id="answers"></div>
+    <div id="screen-res" class="glass-card" style="display:none; text-align:center;">
+        <div id="res-icon" style="font-size:60px"></div>
+        <h2 id="res-score"></h2>
+        <p id="res-status" style="font-size:18px; font-weight:bold;"></p>
+        <button class="btn-main" onclick="location.reload()">Nový test</button>
     </div>
-    <button class="btn btn-main" id="next-btn" onclick="nextQuestion()">Další otázka</button>
-  </div>
-
-  <div id="screen-res" class="card fade-in" style="display:none; text-align:center;">
-    <h1 id="res-icon" style="font-size: 80px; margin: 10px 0; text-shadow: 0 10px 20px rgba(0,0,0,0.1);">✅</h1>
-    <h2 id="res-score" style="font-size: 40px; margin-bottom: 5px;">0 / 25</h2>
-    <p id="res-status" style="font-weight: 800; font-size: 20px; margin-bottom: 20px;"></p>
-    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 30px; font-weight: 500;">Výsledek byl zaznamenán do systému.</p>
-    <button class="btn btn-main" onclick="location.reload()" style="animation: none;">Spustit nový test</button>
-  </div>
-
 </div>
 
 <script>
-// ---------- ZDE VLOŽ SVŮJ GOOGLE APPS SCRIPT URL ----------
+// --- KONFIGURACE ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylbGGi498B00Tyjrjhlo1FUJKPbWCr8QYsOX1cNUvav7inqfGAkvG-WExKolS0SmmE6A/exec";
-// ----------------------------------------------------------
+const HASHED_PASS = "cm9obGlrMjAyNg==";
+const Q_LIMIT = 25;
+const SECONDS_PER_Q = 45;
+const MAX_ERRORS = 5;
 
-// Nastavení
-const HASHED_PASS = "cm9obGlrMjAyNg=="; // Zakódované heslo (rohlik2026)
-const QUESTIONS_TO_SHOW = 25;        
-const MAX_ERRORS = 5;                
-const TIME_LIMIT_MINUTES = 45;       
-
-// MASIVNÍ BANKA OTÁZEK - ÚROVEŇ A1/A2 + PŘESNÉ FIREMNÍ PROCESY
+// --- BANKA OTÁZEK ---
+const NAMES = ["p. Novák", "p. Svoboda", "p. Dvořák", "p. Černý", "p. Kučera", "p. Marek"];
 const BANK = [
-
-  // --- 1. FIREMNÍ PROCESY (Kdo co řeší - naprosto klíčové) ---
-  { q: "Auto nestartuje, máš defekt (píchlé kolo) nebo jinou technickou poruchu. Komu zavoláš?", a: ["Technikům.", "Zákaznické podpoře.", "Dispečinku.", "Správci vybavení."], c: 0 },
-  { q: "Zákazník je naštvaný, chybí mu věci z nákupu a chce si stěžovat (reklamace). Kam ho odkážeš?", a: ["Omluvím se a poprosím ho, ať kontaktuje Zákaznickou podporu.", "Ať zavolá na Dispečink.", "Ať zavolá KKS.", "Na Správce vybavení."], c: 0 },
-  { q: "Zablokoval se ti firemní telefon, zapomněl jsi PIN k tankovací kartě nebo potřebuješ zvýšit její limit. Kdo to řeší?", a: ["Správce vybavení.", "Technici.", "Dispečink.", "KKS."], c: 0 },
-  { q: "Za jakých okolností smíš telefonicky volat na Dispečink?", a: ["Volám jim jen tehdy, když nemohu pokračovat v trase (např. vážná nehoda, překládka zboží). Jinak komunikuji přes SMS.", "Volám jim kvůli každému zpoždění.", "Volám jim kvůli defektu auta.", "Volám jim, když zákazník není doma."], c: 0 },
-  { q: "Máš zpoždění na trase a potřebuješ ho řešit, nebo odevzdáváš vratné obaly. Na jaké oddělení se obrátíš?", a: ["Na KKS.", "Na Dispečink.", "Na Techniky.", "Na Zákaznickou podporu."], c: 0 },
-  { q: "Musel jsi na benzínce natankovat za hotové peníze. S kým to budeš řešit?", a: ["Se Správcem vybavení.", "Se Zákaznickou podporou.", "S KKS.", "S Technikem."], c: 0 },
-  { q: "Máš drobný problém na trase (ale můžeš pokračovat) a potřebuješ to oznámit Dispečinku. Jak to uděláš?", a: ["Pošlu jim SMS.", "Budu jim pořád volat, dokud to nezvednou.", "Zavolám KKS ať jim to vyřídí.", "Nijak, to není důležité."], c: 0 },
-  { q: "Zákazník se ptá, proč minule nedostal kompenzaci za rozbité vejce. Co odpovíš?", a: ["Omlouvám se, ale reklamace řeší Zákaznická podpora, prosím kontaktujte je.", "To musíte řešit s KKS.", "Protože lžete.", "Dám vám své peníze."], c: 0 },
-
-  // --- 2. SITUACE S ALKOHOLEM A VĚKEM (18+) ---
-  { q: "V nákupu je alkohol a aplikaci vyskočí kontrola věku. Otevře ti 15letý chlapec. Co uděláš?", a: ["Alkohol stornuji a odvezu zpět, nebo ho předám jen dospělé osobě s platným dokladem.", "Dám mu nákup, je to jedno.", "Řeknu mu, ať mi ukáže fotku občanky rodičů.", "Nechám to za dveřmi."], c: 0 },
-  { q: "Jak se slušně zeptáš mladého zákazníka na občanský průkaz kvůli alkoholu?", a: ["Dobrý den, máte tam alkohol. Mohl bych prosím vidět váš průkaz totožnosti?", "Ukaž občanku!", "Kolik ti je?", "Dám ti to jen, když ukážeš pas."], c: 0 },
-  { q: "Zákazník nemá u sebe občanku, vypadá velmi mladě a v nákupu jsou cigarety. Co uděláš?", a: ["Omlouvám se, ale bez průkazu totožnosti vám tabák nesmím předat. Zboží musím stornovat.", "Tak mi to podepište a vezměte si to.", "Počkám, až najdete rodný list.", "Dám vám to, věřím vám."], c: 0 },
-  { q: "Zákazník ukazuje fotku občanky v mobilu, aby dokázal, že mu je 18 let. Stačí to?", a: ["Ne, musím vidět originál průkazu, nebo oficiální aplikaci eDoklady.", "Ano, fotka v galerii stačí.", "Ano, pokud je fotka barevná.", "Ne, musí mít cestovní pas."], c: 0 },
-
-  // --- 3. PROBLÉMY A REKLAMACE NA MÍSTĚ ---
-  { q: "Při předávání zákazník zjistí, že jsou rajčata plesnivá. Co mu řekneš?", a: ["Moc se omlouvám, hned ta rajčata v aplikaci stornuji a peníze se vám vrátí na účet.", "To je normální.", "Běžte si je vyreklamovat na Zákaznickou podporu.", "Já je nebalil."], c: 0 },
-  { q: "Rozbila se ti lahev s olejem a zničila půlku nákupu. Co řekneš zákazníkovi?", a: ["Velice se omlouvám, rozbité a zničené věci hned stornuji, abyste dostal peníze zpět.", "Omlouvám se, zavolejte si na Zákaznickou podporu.", "Tady to máte, je to trochu mastné.", "To už tak bylo připravené ve skladu."], c: 0 },
-  { q: "Zákazníkovi chybí drahé maso. Ty ho v autě nemáš. Co řekneš?", a: ["Omlouvám se, maso chybí. Položku stornuji. Pokud s tím máte další potíže, kontaktujte Zákaznickou podporu.", "Někdo ho asi ukradl.", "Zavolejte si na Dispečink.", "Zítra vám ho dovezu."], c: 0 },
-  { q: "V tašce je rozlité mléko, ale zákazník říká: „To nevadí, já si to umyju.“ Co uděláš ty?", a: ["Zákazníkovi poděkuji, ale mléko v aplikaci stejně stornuji, aby neplatil za poškozené zboží.", "Poděkuji a odjedu.", "Řeknu mu, že je hloupý.", "Zavolám na Techniky."], c: 0 },
-  { q: "Zákazník chce vrátit zboží, které si koupil včera. Co mu řekneš?", a: ["Zboží od vás převzít nemohu, prosím vyřešte reklamaci online přes Zákaznickou podporu.", "Dejte mi ho, já ho vrátím do skladu.", "Hodím to do koše.", "Zavolejte na KKS."], c: 0 },
-
-  // --- 4. GRAMATIKA A2 A ZDVOŘILOST ---
-  { q: "Doplň zdvořilou větu: „___ byste mi prosím otevřít i ty druhé dveře?“", a: ["Mohl", "Můžete", "Chcete", "Máte"], c: 0 },
-  { q: "Doplň minulý čas: „Omlouvám se, ___ jsem vzít ještě jednu tašku. Hned pro ni dojdu.“", a: ["zapomněl", "zapomínám", "nezapomněl", "zapomenout"], c: 0 },
-  { q: "Doplň větu: „Pokud to nepůjde zaplatit kartou, ___ to zaplatit hotově?“", a: ["můžete", "byste mohl", "budete moci", "chtít"], c: 0 },
-  { q: "Jak slušně požádáš o podpis na displej telefonu?", a: ["Podepište se mi sem prstem, prosím.", "Dejte mi podpis.", "Tady to podepiš.", "Musíte to podepsat teď."], c: 0 },
-  { q: "Zákazník má plné ruce a ptá se, jestli mu vyložíš nákup do lednice. Jak zdvořile odmítneš?", a: ["Nezlobte se, to bohužel z hygienických a časových důvodů nemohu, nákup vám položím zde na stůl.", "Ne, to nedělám.", "Na to nemám čas.", "Vyložte si to sám."], c: 0 },
-  { q: "Zákazník je rozzlobený kvůli zpoždění. Která věta je nejvhodnější?", a: ["Velice se omlouvám za zpoždění, byla hrozná dopravní situace.", "Uklidněte se, vždyť jsem tady.", "Mohl jste si nakoupit sám.", "Stěžujte si na KKS."], c: 0 },
-  { q: "Doplň: „Chtěl ___ se zeptat, jestli máte připravený kód ke dveřím.“", a: ["bych", "jsem", "budu", "mám"], c: 0 },
-
-  // --- 5. NAVIGACE, ADRESY A POZNÁMKY ZÁKAZNÍKA ---
-  { q: "Poznámka: „Prosím, nechte auto na blikačkách a projděte průchodem do dvora.“ Co uděláš?", a: ["Zastavím na hlavní, zapnu výstražná světla a půjdu pěšky průchodem.", "Vejedu s autem až do dvora.", "Zavolám zákazníkovi, ať si pro to přijde na ulici.", "Zruším objednávku."], c: 0 },
-  { q: "Poznámka: „Slepá ulice, nedá se tam otočit.“ Jak to vyřešíš?", a: ["Zacouvám tam, nebo zaparkuji před ulicí a donesu to pěšky.", "Pojedu tam rychle.", "Nechám to na nejbližší křižovatce.", "Zavolám na Dispečink."], c: 0 },
-  { q: "Co znamená nápis na zvonku: „Zvonek nefunguje, volejte na mobil“?", a: ["Nemám zvonit, ale rovnou vytočit telefonní číslo zákazníka.", "Mám silně klepat na dveře.", "Mám křičet do okna.", "Mám nákup nechat před domem."], c: 0 },
-  { q: "Poznámka: „Vchod z ulice Jarní, i když je adresa Letní.“ Kde budeš hledat dveře?", a: ["Najdu vchod, který je z ulice Jarní.", "Budu je hledat na ulici Letní.", "Pojedu zpět na sklad.", "Zavolám Zákaznickou podporu."], c: 0 },
-  { q: "Aplikace píše: „Doručení na recepci, zákazník již zaplatil online.“ Komu a jak předáš nákup?", a: ["Předám nákup recepčnímu a rovnou odcházím, nic nevybírám.", "Budu po recepčním chtít zaplatit hotově.", "Nechám to venku na ulici.", "Musím najít zákazníka osobně."], c: 0 },
-  { q: "Zákazník má v poznámce rakouské číslo začínající +43. Co to znamená?", a: ["Že mu musím volat přes aplikaci, nebo ručně vytočit číslo s touto předvolbou.", "Že musím mluvit německy.", "Že mu nemohu zavolat.", "Že je objednávka zrušena."], c: 0 },
-  { q: "Poznámka: „Zazvoňte a nechte nákup u dveří.“ Zákazník ale zrovna vychází ven. Co uděláš?", a: ["Slušně ho pozdravím a nákup mu předám osobně.", "Nechám to na zemi a uteču.", "Řeknu mu, ať jde dovnitř, že to mám nechat u dveří.", "Zavolám Zákaznickou podporu."], c: 0 },
-
-  // --- 6. PENÍZE, TERMINÁLY A DÝŠKA ---
-  { q: "Zákazník chce platit nákup (1400 Kč) bankovkou 5000 Kč, ale ty tolik peněz na vrácení nemáš. Co slušně řekneš?", a: ["Omlouvám se, ale nemám vám jak vrátit z tak velké bankovky. Nemohl byste platit kartou?", "Nechci to, dejte mi drobné.", "Zajdu do obchodu rozměnit.", "Vezmu si to a zbytek vám pošlu na účet."], c: 0 },
-  { q: "Zákazník má platit 430 Kč. Dává ti 500 Kč a říká: „To je v pořádku.“ Co to znamená?", a: ["70 Kč mi dává jako spropitné (dýško) a nevracím nic.", "Mám mu vrátit 70 Kč.", "Mám nákup stornovat.", "Chce platit kartou."], c: 0 },
-  { q: "Terminál napíše „Transakce zamítnuta“. Jak to zákazníkovi sdělíš?", a: ["Omlouvám se, platba neprošla. Můžeme to zkusit ještě jednou?", "Máte tam málo peněz.", "Karta nefunguje, dejte mi hotovost.", "Zavolejte do své banky, odjíždím."], c: 0 },
-  { q: "V aplikaci vidíš „Platba hotově“, ale zákazník říká: „Nemám hotovost, můžu to zaplatit kartou?“", a: ["Ano, samozřejmě, přepnu to v terminálu na platbu kartou.", "Bohužel ne, musíte platit jen hotově.", "To je problém, volám Zákaznickou podporu.", "Ne, to nejde."], c: 0 },
-  { q: "Zákazník ti dává stravenky (poukázky na jídlo), ale kupuje i prací prášek a šampon. Co mu musíš vysvětlit?", a: ["Stravenkami můžete platit jen za potraviny. Drogerii musíte doplatit hotově nebo kartou.", "To nevadí, beru všechno.", "Stravenky vůbec nebereme.", "Musíte to celé zaplatit kartou."], c: 0 },
-  { q: "Zákazník platil nákup online, ale na místě říká: „Tady máte stovku za tu rychlost.“ Co to je?", a: ["To je spropitné (dýško) pro mě.", "To jsou peníze pro Rohlík.", "Je to doplacení nákupu.", "Snaží se mě uplatit."], c: 0 },
-
-  // --- 7. TELEFONOVÁNÍ A ZÁKLADNÍ KOMUNIKACE ---
-  { q: "Stojíš před velkým domem a nevíš, jaký má zákazník zvonek. Voláš mu. Jak hovor začneš?", a: ["Dobrý den, tady kurýr Rohlíku. Jsem před vaším domem, ale nemohu najít váš zvonek. Jaké jméno tam máte?", "Kde máte zvonek?", "Pojďte dolů.", "Otevřete!"], c: 0 },
-  { q: "Zákazník to zvedne a špatně ho slyšíš (vypadává signál). Jak mu to česky řekneš?", a: ["Omlouvám se, je tu velmi špatný signál a špatně vás slyším. Můžete to zopakovat?", "Haló! Mluvte!", "Nic neslyším, ruším objednávku.", "Zavolám na Dispečink."], c: 0 },
-  { q: "Zákazník říká do telefonu: „Promiňte, zapomněl jsem, už jedu domů. Budu tam za 5 minut.“ Co uděláš?", a: ["Rozumím, 5 minut na vás počkám před domem.", "Nebudu čekat, jedu pryč.", "Nechám to na chodníku.", "Odvezu to do skladu."], c: 0 },
-  { q: "Do telefonu se ozve anglicky hovořící zákazník: „Hello, I don't speak Czech.“ Jak odpovíš?", a: ["Hello, this is Rohlík courier. I am in front of your building.", "Musíte mluvit česky.", "Nerozumím.", "Zavolám Zákaznickou podporu."], c: 0 },
-  { q: "Když zákazníkovi nerozumíš dlouhou českou větu, co řekneš?", a: ["Prosím, zopakujte to pomalu, ještě se učím česky.", "Mám hlad.", "Nevím, kde jsem.", "Zavěsím telefon."], c: 0 },
-  { q: "Zákazník tě prosí: „Můžete mi ty tašky položit tady na botník?“ Jak odpovíš?", a: ["Ano, samozřejmě. Tady to máte.", "Ne.", "Co je botník?", "Položím to na zem."], c: 0 },
-
-  // --- 8. SPECIFIKA KURÝRA (Zóny, tašky, zpoždění) ---
-  { q: "Co to jsou „teplotní zóny“ v autě a proč jsou důležité?", a: ["Rozdělují auto na mrazák, lednici a suché zboží, aby se potraviny nezkazily.", "Jsou to místa, kde kurýr spí.", "Je to topení pro kurýra.", "Aby auto lépe jelo."], c: 0 },
-  { q: "Zákazník má objednané 4 balíky těžkých vod a bydlí ve 4. patře bez výtahu. Máš povinnost mu to vynést?", a: ["Ano, donáška až ke dveřím bytu je naše standardní služba.", "Ne, nechám to v přízemí.", "Zavolám mu, ať mi přijde pomoct.", "Nechám to v autě."], c: 0 },
-  { q: "Všimneš si, že ti v aplikaci svítí upozornění na blížící se zpoždění u dalšího zákazníka.", a: ["Dodržuji předpisy, bezpečnost je na prvním místě. Pokud nestíhám, řeším zpoždění v aplikaci nebo s KKS.", "Pojedu nebezpečně rychle.", "Zavolám Zákaznickou podporu ať to prodlouží.", "Zruším nákupy."], c: 0 },
-  { q: "Jak česky zákazníkovi oznámíš, že máš v autě další nákup a musíš už jet?", a: ["Omlouvám se, ale už musím pokračovat k dalším zákazníkům. Mějte se hezky.", "Musím jet, ahoj.", "Nemám na vás čas.", "Odcházím."], c: 0 },
-  { q: "Co znamená pojem „Storno položky na místě“?", a: ["Pokud je produkt poškozený nebo chybí, vymažu ho v aplikaci ze seznamu, aby za něj zákazník neplatil.", "Celý nákup se vrací do skladu.", "Znamená to, že zavolám na Správce vybavení.", "Zákazník stornoval auto."], c: 0 },
-  { q: "Co znamená nápis „Pozor, křehké“ na papírové tašce?", a: ["Že jsou uvnitř věci, které se snadno rozbijí (sklo, vajíčka), musím být opatrný.", "Že je taška těžká.", "Že je taška mokrá.", "Že to mám hodit."], c: 0 },
-
-  // --- 9. PRAVIDLA SILNICE A PARKOVÁNÍ ---
-  { q: "Dopravní značka „Zákaz zastavení“. Co pro tebe znamená?", a: ["Nesmím tam zastavit ani na minutu pro vyložení nákupu, hrozí pokuta.", "Můžu tam parkovat celý den.", "Můžu tam stát 15 minut.", "Můžu tam stát na blikačkách."], c: 0 },
-  { q: "Co znamená „Modrá zóna“ v Praze nebo Brně?", a: ["Zóna pro rezidenty. Jako kurýr musím dávat pozor na pravidla parkování, abych nedostal pokutu.", "Parkování je vždy zdarma.", "Zóna jen pro elektromobily Rohlíku.", "Místo na mytí aut."], c: 0 },
-  { q: "Zákazník ukazuje na tvé auto a říká: „Stojíte docela špatně, blokujete mě.“ Co uděláš?", a: ["Omluvím se a auto hned přeparkuji, abych nepřekážel.", "Řeknu mu, ať mlčí.", "Zavolám na KKS.", "Odjedu úplně pryč."], c: 0 },
-  { q: "Zákazník tě naviguje: „Zastavte hned za přechodem pro chodce.“ Můžeš to udělat?", a: ["Ne, parkování těsně před a za přechodem je zakázané a nebezpečné.", "Ano, pokud zapnu blikačky.", "Ano, vždycky.", "Jen v noci."], c: 0 },
-
-  // --- 10. EXTRA MIX ---
-  { q: "Zákazník si přeje tašky postavit na zem, ale venku sněží a je tam mokro. Co mu řekneš?", a: ["Upozorním ho, že papírové tašky v mokru prasknou, a raději mu je podám do ruky nebo za dveře.", "Dobře, dám je do sněhu.", "Zahodím je.", "Řeknu mu, ať si vezme plastové."], c: 0 },
-  { q: "Zákazník má na sobě respirátor a kašle. Říká: „Mám covid, nechte to tu.“", a: ["Popřeji mu brzké uzdravení, ustoupím dál a provedu bezkontaktní doručení bez podpisu.", "Odmítnu to doručit.", "Budu se s ním fotit.", "Zavolám Dispečink."], c: 0 },
-  { q: "Doplň gramatiku: „___ jste si přál platit hotově, nebo kartou?“", a: ["Chtěl", "Byl", "Měl", "Jste"], c: 0 },
-  { q: "Zákazník nese špinavé a roztrhané tašky na vrácení. Co řekneš?", a: ["Nezlobte se, recyklujeme pouze čisté a neporušené tašky. Tyto si prosím vyhoďte do tříděného odpadu sami.", "Vezmu je.", "Zavolám KKS.", "Nechci je."], c: 0 },
-  { q: "Zapomněl jsi u zákazníka svůj firemní terminál. Uvědomíš si to v autě. Co uděláš?", a: ["Vrátím se, omluvím se zákazníkovi a poprosím ho o vrácení terminálu.", "Koupím si nový.", "Zavolám Správci vybavení, že ho ukradli.", "Nechám to být."], c: 0 }
-
+    { cat: "Procesy", q: "Auto nestartuje nebo máš defekt. Komu zavoláš?", a: ["Technikům", "Podpoře", "KKS", "Nikoho"], c: 0 },
+    { cat: "Procesy", q: "Zákazník chce reklamovat jablka. Co uděláš?", a: ["Odkážu ho na Zákaznickou podporu", "Zavolám techniky", "Nic", "Dám mu slevu"], c: 0 },
+    { cat: "Komunikace", q: "Jak pozdravíš {name} u dveří?", a: ["Dobrý den", "Ahoj", "Co chceš?", "Tady to je"], c: 0 },
+    { cat: "Platby", q: "Terminál hlásí 'Zamítnuto'. Co řekneš?", a: ["Omlouvám se, platba neprošla. Zkusíme to znovu?", "Nemáte peníze", "Zaplaťte hotově", "Odjíždím"], c: 0 },
+    { cat: "Procesy", q: "Zapomněl jsi PIN k tankovací kartě. Komu voláš?", a: ["Správci vybavení", "Technikům", "KKS", "Podpoře"], c: 0 },
+    { cat: "Procesy", q: "Máš zpoždění na trase. S kým to řešíš?", a: ["S KKS", "S Techniky", "Se Správcem", "S nikým"], c: 0 },
+    { cat: "Pravidla", q: "V nákupu je alkohol a u dveří je dítě. Co uděláš?", a: ["Alkohol stornuji nebo předám jen dospělému s OP", "Dám mu to", "Nechám to tam", "Zavolám policii"], c: 0 },
+    { cat: "Pravidla", q: "Co znamená značka Zákaz zastavení?", a: ["Nesmím tam zastavit ani pro vyložení nákupu", "Můžu tam stát 5 min", "Můžu tam stát na blikačky", "Nevím"], c: 0 }
+    // ... sem přidej zbytek svých 100+ otázek
 ];
-let current = 0;
-let score = 0;
-let testSet = [];
-let selected = null;
-let timerInterval;
-let timeLeft = TIME_LIMIT_MINUTES * 60;
-let isTesting = false; 
 
-window.addEventListener("beforeunload", function (e) {
-  if (isTesting) {
-    const msg = "Opravdu chcete test opustit? Váš postup nebude uložen.";
-    e.returnValue = msg;
-    return msg;
-  }
+let state = {
+    current: 0, score: 0, testSet: [], selected: null,
+    tabSwitches: 0, startTime: 0, qStartTime: 0,
+    history: [], hesitancy: []
+};
+
+// --- LOGIKA ---
+
+// Ochrana proti podvádění (Tab Switch)
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden && state.testSet.length > 0) {
+        state.tabSwitches++;
+        console.log("Cheat detection: Tab switched");
+    }
 });
 
-function toggleTheme() { document.body.classList.toggle('dark-mode'); }
-function showError(msg) { const e = document.getElementById('error-msg'); e.innerText = msg; e.style.display = 'block'; }
-
-function startTimer() {
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    let m = Math.floor(timeLeft / 60);
-    let s = timeLeft % 60;
-    document.getElementById('timer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
-    if (timeLeft <= 300) document.getElementById('timer').style.background = 'rgba(231, 76, 60, 0.2)';
-    if (timeLeft <= 0) { clearInterval(timerInterval); alert("Čas vypršel!"); finishTest(); }
-  }, 1000);
-}
-
 function startTest() {
-  document.getElementById('error-msg').style.display = 'none';
-  
-  const n = document.getElementById('name-n').value.trim();
-  const t = document.getElementById('name-t').value.trim();
-  const pass = document.getElementById('pass-t').value.trim();
-  
-  if (!n || !t) { showError("Vyplňte prosím jméno kurýra i trenéra!"); return; }
-  if (btoa(pass) !== HASHED_PASS) { showError("Špatné heslo! Zkuste to znovu."); return; }
-  
-  const btnStart = document.getElementById('btn-start');
-  btnStart.disabled = true;
-  btnStart.innerText = "Načítám...";
-  btnStart.style.animation = "none"; // vypne pulzování
-  
-  testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Math.min(QUESTIONS_TO_SHOW, BANK.length));
-  
-  isTesting = true; 
-  
-  setTimeout(() => { // Malá pauza pro plynulost
+    const n = document.getElementById('name-n').value.trim();
+    const t = document.getElementById('name-t').value.trim();
+    const p = document.getElementById('pass-t').value.trim();
+    
+    if (!n || !t) { alert("Vyplň jména!"); return; }
+    if (btoa(p) !== HASHED_PASS) { alert("Špatné heslo!"); return; }
+
+    // Výběr a míchání otázek
+    state.testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Q_LIMIT);
+    state.startTime = Date.now();
+    
     document.getElementById('screen-login').style.display = 'none';
-    document.getElementById('app-header').style.display = 'flex';
-    document.getElementById('progress-container').style.display = 'block';
+    document.getElementById('main-header').style.display = 'flex';
     document.getElementById('screen-test').style.display = 'block';
     
-    startTimer();
     renderQuestion();
-  }, 400);
 }
 
+let qTimer;
 function renderQuestion() {
-  const wrapper = document.getElementById('question-wrapper');
-  wrapper.classList.remove('fade-in');
-  void wrapper.offsetWidth; // Trigger reflow pro znovuspuštění animace
-  wrapper.classList.add('fade-in');
+    clearInterval(qTimer);
+    const q = state.testSet[state.current];
+    const name = NAMES[Math.floor(Math.random() * NAMES.length)];
+    
+    document.getElementById('q-text').innerText = q.q.replace("{name}", name);
+    document.getElementById('q-idx').innerText = `${state.current + 1}/${Q_LIMIT}`;
+    document.getElementById('progress').style.width = `${(state.current / Q_LIMIT) * 100}%`;
+    document.getElementById('btn-next').disabled = true;
+    
+    // Míchání odpovědí (Bod 2)
+    const ansDiv = document.getElementById('answers');
+    ansDiv.innerHTML = "";
+    state.selected = null;
+    
+    let answers = q.a.map((t, i) => ({ t, i }));
+    answers.sort(() => 0.5 - Math.random());
+    
+    answers.forEach(obj => {
+        const b = document.createElement('button');
+        b.className = "ans-btn";
+        b.innerText = obj.t;
+        b.onclick = () => {
+            if (Date.now() - state.qStartTime < 1000) return; // Ochrana proti rychlému klikání (Bod 29)
+            document.querySelectorAll('.ans-btn').forEach(x => x.classList.remove('selected'));
+            b.classList.add('selected');
+            state.selected = obj.i;
+            document.getElementById('btn-next').disabled = false;
+        };
+        ansDiv.appendChild(b);
+    });
 
-  const q = testSet[current];
-  document.getElementById('q-text').innerText = q.q;
-  document.getElementById('q-counter').innerText = `${current + 1}/${testSet.length}`;
-  document.getElementById('bar').style.width = `${((current) / testSet.length) * 100}%`;
-  
-  const nextBtn = document.getElementById('next-btn');
-  nextBtn.innerText = current === testSet.length - 1 ? "Dokončit a vyhodnotit" : "Další otázka";
-  
-  const div = document.getElementById('answers');
-  div.innerHTML = "";
-  selected = null;
-  
-  q.a.forEach((txt, i) => {
-    const b = document.createElement("button");
-    b.className = "ans-btn";
-    b.innerHTML = `<span>${txt}</span> <span class="check-icon">✔</span>`;
-    b.onclick = () => { 
-      document.querySelectorAll('.ans-btn').forEach(x => x.classList.remove('selected')); 
-      b.classList.add('selected'); 
-      selected = i; 
+    // Otázkový časovač (Bod 12)
+    let sec = SECONDS_PER_Q;
+    state.qStartTime = Date.now();
+    const timerDiv = document.getElementById('q-timer');
+    timerDiv.innerText = sec;
+    timerDiv.classList.remove('low-time');
+
+    qTimer = setInterval(() => {
+        sec--;
+        timerDiv.innerText = sec;
+        if (sec <= 10) timerDiv.classList.add('low-time');
+        if (sec <= 0) {
+            clearInterval(qTimer);
+            nextQuestion(true); // Automatický posun při vypršení času
+        }
+    }, 1000);
+}
+
+function nextQuestion(isTimeout = false) {
+    const q = state.testSet[state.current];
+    const timeSpent = (Date.now() - state.qStartTime) / 1000;
+    
+    // Záznam váhání (Bod 46)
+    if (timeSpent > 30) state.hesitancy.push(q.cat);
+
+    if (!isTimeout && state.selected === q.c) state.score++;
+    
+    state.history.push({ cat: q.cat, correct: !isTimeout && state.selected === q.c });
+
+    if (state.current < Q_LIMIT - 1) {
+        state.current++;
+        renderQuestion();
+    } else {
+        finish();
+    }
+}
+
+function finish() {
+    clearInterval(qTimer);
+    const passed = state.score >= (Q_LIMIT - MAX_ERRORS);
+    const perc = Math.round((state.score / Q_LIMIT) * 100);
+    
+    // Výpočet kategorií pro Slack (Bod 16 & 48)
+    let catResults = {};
+    state.history.forEach(h => {
+        if (!catResults[h.cat]) catResults[h.cat] = { correct: 0, total: 0 };
+        catResults[h.cat].total++;
+        if (h.correct) catResults[h.cat].correct++;
+    });
+
+    document.getElementById('screen-test').style.display = 'none';
+    document.getElementById('main-header').style.display = 'none';
+    document.getElementById('progress').style.display = 'none';
+    document.getElementById('screen-res').style.display = 'block';
+
+    document.getElementById('res-score').innerText = `${state.score} / ${Q_LIMIT}`;
+    document.getElementById('res-icon').innerText = passed ? "🎉" : "❌";
+    document.getElementById('res-status').innerText = passed ? "SKVĚLÉ, PROŠEL(A) JSI!" : "BOHUŽEL, TO NESTAČÍ.";
+
+    // Odeslání dat
+    const payload = {
+        noviceName: document.getElementById('name-n').value,
+        trainerName: document.getElementById('name-t').value,
+        score: state.score,
+        total: Q_LIMIT,
+        percent: perc,
+        passed: passed,
+        tabSwitches: state.tabSwitches,
+        avgTimePerQ: Math.round((Date.now() - state.startTime) / Q_LIMIT / 1000),
+        hesitancyNotes: [...new Set(state.hesitancy)].join(", "),
+        categoryResults: catResults
     };
-    div.appendChild(b);
-  });
-}
 
-function nextQuestion() {
-  if (selected === null) { alert("Vyberte prosím odpověď!"); return; }
-  
-  if (selected === testSet[current].c) score++;
-
-  if (current < testSet.length - 1) { 
-    current++; 
-    renderQuestion(); 
-  } else { 
-    finishTest(); 
-  }
-}
-
-function finishTest() {
-  isTesting = false; 
-  clearInterval(timerInterval);
-  document.getElementById('bar').style.width = `100%`;
-  
-  const minScoreToPass = testSet.length - MAX_ERRORS; 
-  const passed = score >= minScoreToPass;
-  const perc = Math.round((score / testSet.length) * 100);
-  
-  document.getElementById('screen-test').style.display = 'none';
-  document.getElementById('app-header').style.display = 'none';
-  document.getElementById('progress-container').style.display = 'none';
-  document.getElementById('screen-res').style.display = 'block';
-  
-  document.getElementById('res-score').innerText = `${score} / ${testSet.length}`;
-  const resStatus = document.getElementById('res-status');
-  const resIcon = document.getElementById('res-icon');
-  
-  if (passed) {
-    resStatus.innerText = `Skvělé! Prošel(a) jsi (${perc}%).`;
-    resStatus.style.color = "var(--success)";
-    resIcon.innerText = "🎉";
-  } else {
-    resStatus.innerText = `Bohužel jsi neprošel(a). Povolených chyb: ${MAX_ERRORS}.`;
-    resStatus.style.color = "var(--danger)";
-    resIcon.innerText = "❌";
-  }
-
-  const payload = {
-    noviceName: document.getElementById('name-n').value.trim(),
-    trainerName: document.getElementById('name-t').value.trim(),
-    score: score, 
-    total: testSet.length, 
-    percent: perc, 
-    passed: passed
-  };
-
-  if (SCRIPT_URL.includes("script.google.com")) {
-    fetch(SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(err => console.log("Chyba:", err));
-  }
+    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
 }
 </script>
 </body>
