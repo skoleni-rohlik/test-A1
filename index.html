@@ -52,7 +52,13 @@
             box-shadow: 0 0 15px var(--rohlik); z-index: 101;
         }
 
-        h2 { font-weight: 800; letter-spacing: -1px; text-align: center; margin-bottom: 30px; }
+        h2 { font-weight: 800; letter-spacing: -1px; text-align: center; margin-bottom: 20px; }
+        
+        .alert-box {
+            background: rgba(246, 166, 35, 0.1); border: 1px solid var(--rohlik);
+            color: var(--rohlik); padding: 12px; border-radius: 12px;
+            text-align: center; font-size: 14px; margin-bottom: 20px; line-height: 1.4;
+        }
 
         input {
             width: 100%; padding: 16px; margin-bottom: 15px;
@@ -83,7 +89,7 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .low-time { color: var(--danger); animation: pulse 1s infinite; }
 
-        /* Přidaný styl pro blok chyb */
+        /* Styl pro blok chyb */
         #mistakes-container {
             max-height: 250px; overflow-y: auto; text-align: left;
             margin: 20px 0; padding-right: 10px; display: none; font-size: 14px;
@@ -103,7 +109,7 @@
 <header id="main-header" style="display:none;">
     <img src="rohlik-logo.png" style="height:25px;" onerror="this.style.display='none'">
     <div style="display:flex; gap:15px; align-items:center;">
-        <div id="q-timer" class="q-timer-ring">45</div>
+        <div id="q-timer" class="q-timer-ring">60</div>
         <div id="q-idx" style="font-weight:bold; color:var(--text-muted)">1/25</div>
     </div>
 </header>
@@ -111,6 +117,9 @@
 <div class="container" style="flex:1; display:flex;">
     <div id="screen-login" class="glass-card">
         <h2>Jazykový test (A1-A2)</h2>
+        <div class="alert-box">
+            ⚠️ <b>Upozornění:</b> Test je pouze na <b>jeden pokus</b>.<br>Na každou otázku je časový limit 60 vteřin!
+        </div>
         <input type="text" id="name-n" placeholder="Jméno kurýra">
         <input type="text" id="name-t" placeholder="Jméno trenéra">
         <input type="password" id="pass-t" placeholder="Heslo trenéra">
@@ -134,16 +143,24 @@
             <h4 style="margin-top:0; color:var(--danger); text-align:center;">Chyby v testu:</h4>
             <div id="mistakes-list"></div>
         </div>
-
-        <button class="btn-main" onclick="location.reload()">Nový test</button>
     </div>
 </div>
 
 <script>
+// --- OCHRANA PROTI OPAKOVANÉMU SPUŠTĚNÍ ---
+document.addEventListener("DOMContentLoaded", () => {
+    if (localStorage.getItem("rohlikTestZablokovan") === "true") {
+        document.getElementById("screen-login").innerHTML = `
+            <h2 style="color:var(--danger); margin-bottom:10px;">Test byl již spuštěn</h2>
+            <p style="text-align:center; line-height:1.5;">Tento test je povolen pouze na jeden pokus. Váš pokus byl již vyčerpán nebo došlo k obnovení stránky během testování.</p>
+        `;
+    }
+});
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylbGGi498B00Tyjrjhlo1FUJKPbWCr8QYsOX1cNUvav7inqfGAkvG-WExKolS0SmmE6A/exec";
 const HASHED_PASS = "Uk9IMjY="; 
 const Q_LIMIT = 25;
-const SECONDS_PER_Q = 45;
+const SECONDS_PER_Q = 60;
 const MAX_ERRORS = 5;
 
 const BANK = [
@@ -193,17 +210,24 @@ let state = {
     history: [], hesitancy: []
 };
 
+// Detekce opuštění záložky s testem
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && state.testSet.length > 0) state.tabSwitches++;
 });
 
 function startTest() {
+    // Pokud je test zablokován už z předchozí relace, nepustí dál
+    if (localStorage.getItem("rohlikTestZablokovan") === "true") return;
+
     const n = document.getElementById('name-n').value.trim();
     const t = document.getElementById('name-t').value.trim();
     const p = document.getElementById('pass-t').value.trim();
     
     if (!n || !t) { document.getElementById('error-msg').innerText = "Vyplňte jména!"; document.getElementById('error-msg').style.display = 'block'; return; }
     if (btoa(p) !== HASHED_PASS) { document.getElementById('error-msg').innerText = "Špatné heslo!"; document.getElementById('error-msg').style.display = 'block'; return; }
+
+    // Uložení zámku do prohlížeče (jeden pokus)
+    localStorage.setItem("rohlikTestZablokovan", "true");
 
     state.testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Q_LIMIT);
     state.startTime = Date.now();
@@ -276,7 +300,6 @@ function nextQuestion(isTimeout = false) {
     const isCorrect = (!isTimeout && state.selected === q.c);
     if (isCorrect) state.score++;
     
-    // Zápis chybného výsledku pro zobrazení na konci
     state.history.push({ 
         cat: qCategory, 
         correct: isCorrect,
