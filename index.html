@@ -161,6 +161,7 @@ const HASHED_PASS = "Uk9IMjY=";
 const Q_LIMIT = 25;
 const SECONDS_PER_Q = 60;
 const MAX_ERRORS = 5;
+const BLOCK_TIME_MS = 30 * 60 * 1000; // 30 minut v milisekundách
 
 const BANK = [
   // GRAMATIKA - MINULÝ A BUDOUCÍ ČAS
@@ -220,11 +221,16 @@ function startTest() {
     const t = document.getElementById('name-t').value.trim();
     const p = document.getElementById('pass-t').value.trim();
     
-    // Ochrana admina (vyhnutí se pravidlu 1 pokusu a odblokování)
+    // Admin vynechá jakoukoli blokaci
     const isAdmin = (n.toLowerCase() === "admin" || t.toLowerCase() === "admin");
 
-    if (localStorage.getItem("rohlikTestZablokovan") === "true" && !isAdmin) {
-        document.getElementById('error-msg').innerHTML = "Tento test je povolen pouze na jeden pokus.<br>Váš pokus byl již vyčerpán.";
+    const lastTestTime = localStorage.getItem("rohlikLastTestTime");
+    const currentTime = Date.now();
+
+    // Kontrola blokace (pokud od posledního spuštění neuplynulo 30 minut)
+    if (lastTestTime && (currentTime - parseInt(lastTestTime)) < BLOCK_TIME_MS && !isAdmin) {
+        const remainingMinutes = Math.ceil((BLOCK_TIME_MS - (currentTime - parseInt(lastTestTime))) / 60000);
+        document.getElementById('error-msg').innerHTML = `Tento test byl nedávno spuštěn.<br>Další pokus je možný za <b>${remainingMinutes} min</b>.`;
         document.getElementById('error-msg').style.display = 'block';
         return;
     }
@@ -232,11 +238,11 @@ function startTest() {
     if (!w || !n || !t) { document.getElementById('error-msg').innerText = "Vyplňte všechna pole!"; document.getElementById('error-msg').style.display = 'block'; return; }
     if (btoa(p) !== HASHED_PASS) { document.getElementById('error-msg').innerText = "Špatné heslo!"; document.getElementById('error-msg').style.display = 'block'; return; }
 
-    // Zápis blokace pouze pokud to není admin (admin si může testovat donekonečna)
+    // Uložení aktuálního času spuštění (pokud to není Admin)
     if (!isAdmin) {
-        localStorage.setItem("rohlikTestZablokovan", "true");
+        localStorage.setItem("rohlikLastTestTime", currentTime.toString());
     } else {
-        localStorage.removeItem("rohlikTestZablokovan"); // Pro jistotu čistí paměť
+        localStorage.removeItem("rohlikLastTestTime"); // Admin resetuje časovač
     }
 
     state.testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Q_LIMIT);
