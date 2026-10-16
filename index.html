@@ -90,7 +90,6 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .low-time { color: var(--danger); animation: pulse 1s infinite; }
 
-        /* Styl pro blok chyb */
         #mistakes-container {
             max-height: 250px; overflow-y: auto; text-align: left;
             margin: 20px 0; padding-right: 10px; display: none; font-size: 14px;
@@ -147,7 +146,6 @@
         <h2 id="res-score"></h2>
         <p id="res-status" style="font-size:18px; font-weight:bold;"></p>
         
-        <!-- Výpis chyb -->
         <div id="mistakes-container">
             <h4 style="margin-top:0; color:var(--danger); text-align:center;">Chyby v testu:</h4>
             <div id="mistakes-list"></div>
@@ -161,30 +159,23 @@ const HASHED_PASS = "Uk9IMjY=";
 const Q_LIMIT = 25;
 const SECONDS_PER_Q = 60;
 const MAX_ERRORS = 5;
-const BLOCK_TIME_MS = 30 * 60 * 1000; // 30 minut v milisekundách
+const BLOCK_TIME_MS = 30 * 60 * 1000;
 
 const BANK = [
-  // GRAMATIKA - MINULÝ A BUDOUCÍ ČAS
   { cat: "Gramatika", q: "Omlouvám se, ___ jednu tašku v autě. Hned pro ni dojdu.", a: ["zapomněl jsem", "zapomenu", "zapomínám", "zapomněl"], c: 0 },
   { cat: "Gramatika", q: "Za pět minut ___ u vás před domem.", a: ["budu", "jsem", "byl", "být"], c: 0 },
   { cat: "Gramatika", q: "Paní Nováková, ___ platit kartou, nebo hotově?", a: ["budete", "jste", "byli", "být"], c: 0 },
   { cat: "Gramatika", q: "Včera na silnici ___ velká zácpa.", a: ["byla", "je", "bude", "být"], c: 0 },
-
-  // GRAMATIKA - MODÁLNÍ SLOVESA A KONDICIONÁL
   { cat: "Gramatika", q: "___ byste mi prosím otevřít dveře dole?", a: ["Mohl", "Můžu", "Musel", "Chci"], c: 0 },
   { cat: "Gramatika", q: "Bohužel, tam s autem ___ parkovat.", a: ["nesmím", "nechci", "nebudu", "nedělám"], c: 0 },
   { cat: "Gramatika", q: "Zákazník musí nákup na terminálu ___.", a: ["zaplatit", "platil", "platím", "platíme"], c: 0 },
   { cat: "Gramatika", q: "___ se mi tady na displej, prosím.", a: ["Podepište", "Podepsat", "Píšu", "Kreslete"], c: 0 },
-
-  // GRAMATIKA - PÁDY A PŘEDLOŽKY
   { cat: "Gramatika", q: "Mám tady pro ___ velký nákup.", a: ["vás", "vy", "vám", "váš"], c: 0 },
   { cat: "Gramatika", q: "Přijel jsem s ___.", a: ["nákupem", "nákup", "nákupu", "nákupy"], c: 0 },
   { cat: "Gramatika", q: "Dobrý den, vezu vám ___ z Rohlíku.", a: ["nákup", "auto", "zákazníka", "tašku"], c: 0 },
   { cat: "Gramatika", q: "Jsem s autem ___ domem, můžete přijít dolů?", a: ["před", "na", "v", "do"], c: 0 },
   { cat: "Gramatika", q: "Zaparkoval jsem hned ___ rohem.", a: ["za", "na", "do", "v"], c: 0 },
   { cat: "Gramatika", q: "Počkám na ___ venku u auta.", a: ["vás", "vy", "váš", "vám"], c: 0 },
-
-  // SITUACE - ŘEŠENÍ PROBLÉMŮ A KOMUNIKACE
   { cat: "Situace", q: "Když se zákazník ptá: „Kolik to bude stát?“, co odpovíte?", a: ["Celkem to dělá 850 korun.", "Bude to v 8:00.", "Mám 850 korun.", "Chci 850 korun."], c: 0 },
   { cat: "Situace", q: "Máte v tašce rozbitá vajíčka. Co zákazníkovi řeknete?", a: ["Omlouvám se, hned to vyreklamuji a peníze se vám vrátí.", "To není můj problém, už to tak bylo.", "Musíte to zaplatit.", "Zavolejte na policii."], c: 0 },
   { cat: "Situace", q: "Zákazník není doma. Voláte mu a ptáte se:", a: ["Dobrý den, za jak dlouho budete doma?", "Kdo jste a kde jste?", "Proč nemáte nákup?", "Kde je auto?"], c: 0 },
@@ -192,8 +183,6 @@ const BANK = [
   { cat: "Situace", q: "Jak se slušně omluvíte za to, že jedete pozdě kvůli dopravě?", a: ["Moc se omlouvám za zpoždění, byla špatná doprava.", "Tady jsem konečně.", "Jedu rychle, nestěžujte si.", "Proč tu nejste vy?"], c: 0 },
   { cat: "Situace", q: "Platební terminál nefunguje nebo nemá signál. Co řeknete?", a: ["Omlouvám se, terminál nemá signál, zkusíme to za chvíli znovu.", "Vaše karta je špatná a rozbitá.", "Nemáte na účtu žádné peníze.", "Běžte si vybrat hotovost."], c: 0 },
   { cat: "Situace", q: "Zákazník chce nákup zrušit (vrátit). Co mu řeknete?", a: ["Dobře, zavolám na zákaznickou podporu a zařídím storno.", "To nesmíte udělat.", "Stejně mi musíte dát peníze.", "To nevím, to je váš problém."], c: 0 },
-
-  // SLOVNÍ ZÁSOBA A POROZUMĚNÍ
   { cat: "Slovní zásoba", q: "Zákazník vám řekne: „Drobné si nechte.“ Co to znamená?", a: ["Dává mi spropitné (dýško) za doručení.", "Nechce už nákup, můžu si ho nechat.", "Mám mu vrátit úplně všechny peníze.", "Mám peníze vyhodit do koše."], c: 0 },
   { cat: "Slovní zásoba", q: "Co znamená, když je v poznámce: „Zvoňte na Novák“?", a: ["Musím na panelu najít jméno Novák a zazvonit.", "Budu na ulici křičet Novák.", "Musím zavolat Novákovi na mobil.", "Zazvoním raději na všechny zvonky."], c: 0 },
   { cat: "Slovní zásoba", q: "Co znamená slovo „Účtenka“?", a: ["Papír z terminálu s potvrzením o nákupu a platbě.", "Peníze, které mi zákazník dává v hotovosti.", "Papírová taška, ve které je nákup.", "Zákazníkův občanský průkaz."], c: 0 },
@@ -210,7 +199,6 @@ let state = {
     history: [], hesitancy: []
 };
 
-// Detekce opuštění záložky s testem
 document.addEventListener('visibilitychange', () => {
     if (document.hidden && state.testSet.length > 0) state.tabSwitches++;
 });
@@ -221,13 +209,10 @@ function startTest() {
     const t = document.getElementById('name-t').value.trim();
     const p = document.getElementById('pass-t').value.trim();
     
-    // Admin vynechá jakoukoli blokaci
     const isAdmin = (n.toLowerCase() === "admin" || t.toLowerCase() === "admin");
-
     const lastTestTime = localStorage.getItem("rohlikLastTestTime");
     const currentTime = Date.now();
 
-    // Kontrola blokace (pokud od posledního spuštění neuplynulo 30 minut)
     if (lastTestTime && (currentTime - parseInt(lastTestTime)) < BLOCK_TIME_MS && !isAdmin) {
         const remainingMinutes = Math.ceil((BLOCK_TIME_MS - (currentTime - parseInt(lastTestTime))) / 60000);
         document.getElementById('error-msg').innerHTML = `Tento test byl nedávno spuštěn.<br>Další pokus je možný za <b>${remainingMinutes} min</b>.`;
@@ -238,11 +223,10 @@ function startTest() {
     if (!w || !n || !t) { document.getElementById('error-msg').innerText = "Vyplňte všechna pole!"; document.getElementById('error-msg').style.display = 'block'; return; }
     if (btoa(p) !== HASHED_PASS) { document.getElementById('error-msg').innerText = "Špatné heslo!"; document.getElementById('error-msg').style.display = 'block'; return; }
 
-    // Uložení aktuálního času spuštění (pokud to není Admin)
     if (!isAdmin) {
         localStorage.setItem("rohlikLastTestTime", currentTime.toString());
     } else {
-        localStorage.removeItem("rohlikLastTestTime"); // Admin resetuje časovač
+        localStorage.removeItem("rohlikLastTestTime");
     }
 
     state.testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Q_LIMIT);
@@ -354,7 +338,6 @@ function finish() {
     document.getElementById('res-status').innerText = passed ? "SKVĚLÉ, PROŠEL(A) JSI!" : "BOHUŽEL, TO NESTAČÍ.";
     document.getElementById('res-status').style.color = passed ? "var(--success)" : "var(--danger)";
 
-    // Generování výpisu chyb
     const mistakesContainer = document.getElementById('mistakes-container');
     const mistakesList = document.getElementById('mistakes-list');
     const errors = state.history.filter(h => !h.correct);
@@ -384,7 +367,8 @@ function finish() {
         tabSwitches: state.tabSwitches,
         avgTimePerQ: Math.round((Date.now() - state.startTime) / Q_LIMIT / 1000),
         hesitancyNotes: state.hesitancy.length > 0 ? [...new Set(state.hesitancy)].join(", ") : "Žádné",
-        categoryResults: catResults
+        categoryResults: catResults,
+        mistakes: errors // Předání seznamu chyb do Apps Scriptu
     };
 
     fetch(SCRIPT_URL, { 
