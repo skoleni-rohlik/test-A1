@@ -2,7 +2,7 @@
 <html lang="cs" translate="no">
 <head>
     <meta charset="UTF-8">
-    <title>Rohlík.cz – Jazykový test (ČJ)</title>
+    <title>Rohlík.cz – Jazykový test (ČJ A1-A2)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="google" content="notranslate">
     <style>
@@ -20,7 +20,6 @@
             user-select: none; -webkit-user-select: none;
         }
 
-        /* GLASSMORPHISM KARTA */
         .glass-card {
             background: var(--card-bg);
             backdrop-filter: blur(15px);
@@ -83,6 +82,18 @@
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .low-time { color: var(--danger); animation: pulse 1s infinite; }
+
+        /* Přidaný styl pro blok chyb */
+        #mistakes-container {
+            max-height: 250px; overflow-y: auto; text-align: left;
+            margin: 20px 0; padding-right: 10px; display: none; font-size: 14px;
+        }
+        #mistakes-container::-webkit-scrollbar { width: 6px; }
+        #mistakes-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+        .mistake-item {
+            background: rgba(255,255,255,0.05); padding: 12px;
+            border-radius: 12px; margin-bottom: 10px;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -99,7 +110,7 @@
 
 <div class="container" style="flex:1; display:flex;">
     <div id="screen-login" class="glass-card">
-        <h2>Jazykový test (ČJ)</h2>
+        <h2>Jazykový test (A1-A2)</h2>
         <input type="text" id="name-n" placeholder="Jméno kurýra">
         <input type="text" id="name-t" placeholder="Jméno trenéra">
         <input type="password" id="pass-t" placeholder="Heslo trenéra">
@@ -117,57 +128,63 @@
         <div id="res-icon" style="font-size:60px"></div>
         <h2 id="res-score"></h2>
         <p id="res-status" style="font-size:18px; font-weight:bold;"></p>
+        
+        <!-- Výpis chyb -->
+        <div id="mistakes-container">
+            <h4 style="margin-top:0; color:var(--danger); text-align:center;">Chyby v testu:</h4>
+            <div id="mistakes-list"></div>
+        </div>
+
         <button class="btn-main" onclick="location.reload()">Nový test</button>
     </div>
 </div>
 
 <script>
-// --- KONFIGURACE ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylbGGi498B00Tyjrjhlo1FUJKPbWCr8QYsOX1cNUvav7inqfGAkvG-WExKolS0SmmE6A/exec";
-// Heslo je "ROH26" (v Base64)
-const HASHED_PASS = "Uk9IMjY=";
+const HASHED_PASS = "Uk9IMjY="; 
 const Q_LIMIT = 25;
 const SECONDS_PER_Q = 45;
 const MAX_ERRORS = 5;
 
-// --- BANKA OTÁZEK - ČEŠTINA A1/A2 ---
 const BANK = [
-  // --- ZÁKLADNÍ FRÁZE A ZDRAVENÍ ---
-  { cat: "Fráze", q: "Jak správně pozdravíte zákazníka ráno?", a: ["Dobré ráno.", "Dobrý večer.", "Na shledanou.", "Dobrou noc."], c: 0 },
-  { cat: "Fráze", q: "Když zákazníkovi předáváte nákup, co řeknete?", a: ["Tady je váš nákup.", "Co chcete?", "Já chci nákup.", "Kde je nákup?"], c: 0 },
-  { cat: "Fráze", q: "Zákazník vám řekne: „Děkuji.“ Co odpovíte?", a: ["Prosím. / Není zač.", "Ano, děkuji.", "Ne.", "Omlouvám se."], c: 0 },
-  { cat: "Fráze", q: "Jak se rozloučíte po předání nákupu?", a: ["Na shledanou, hezký den.", "Dobré ráno.", "Dobrý den.", "Haló."], c: 0 },
-  { cat: "Fráze", q: "Jak se slušně omluvíte za zpoždění?", a: ["Omlouvám se za zpoždění.", "Tady jsem.", "Mám zpoždění, no a?", "Děkuji za zpoždění."], c: 0 },
-  { cat: "Fráze", q: "Co řeknete, když zákazníkovi nerozumíte?", a: ["Nerozumím vám, můžete to zopakovat, prosím?", "Nemluvte.", "Já vím.", "Nechci slyšet."], c: 0 },
+  // GRAMATIKA - MINULÝ A BUDOUCÍ ČAS
+  { cat: "Gramatika", q: "Omlouvám se, ___ jednu tašku v autě. Hned pro ni dojdu.", a: ["zapomněl jsem", "zapomenu", "zapomínám", "zapomněl"], c: 0 },
+  { cat: "Gramatika", q: "Za pět minut ___ u vás před domem.", a: ["budu", "jsem", "byl", "být"], c: 0 },
+  { cat: "Gramatika", q: "Paní Nováková, ___ platit kartou, nebo hotově?", a: ["budete", "jste", "byli", "být"], c: 0 },
+  { cat: "Gramatika", q: "Včera na silnici ___ velká zácpa.", a: ["byla", "je", "bude", "být"], c: 0 },
 
-  // --- TELEFONOVÁNÍ ---
-  { cat: "Telefonování", q: "Jak začnete telefonní hovor se zákazníkem?", a: ["Dobrý den, tady kurýr Rohlíku.", "Já jsem tady.", "Otevřete.", "Kdo volá?"], c: 0 },
-  { cat: "Telefonování", q: "Zákazník to zvedne a špatně ho slyšíte. Jak to řeknete česky?", a: ["Omlouvám se, špatně vás slyším.", "Haló, mluvte!", "Položím to.", "Vy neslyšíte."], c: 0 },
-  { cat: "Telefonování", q: "Potřebujete, aby zákazník přišel dolů. Jak to řeknete?", a: ["Můžete prosím přijít dolů?", "Já nahoru nejdu.", "Jděte ven.", "Kde jste?"], c: 0 },
-  { cat: "Telefonování", q: "Chcete zákazníkovi říct, že dorazíte za 5 minut. Co řeknete?", a: ["Budu u vás za pět minut.", "Jsem tam pět minut.", "Za chvíli je pět.", "Čekám pět minut."], c: 0 },
+  // GRAMATIKA - MODÁLNÍ SLOVESA A KONDICIONÁL
+  { cat: "Gramatika", q: "___ byste mi prosím otevřít dveře dole?", a: ["Mohl", "Můžu", "Musel", "Chci"], c: 0 },
+  { cat: "Gramatika", q: "Bohužel, tam s autem ___ parkovat.", a: ["nesmím", "nechci", "nebudu", "nedělám"], c: 0 },
+  { cat: "Gramatika", q: "Zákazník musí nákup na terminálu ___.", a: ["zaplatit", "platil", "platím", "platíme"], c: 0 },
+  { cat: "Gramatika", q: "___ se mi tady na displej, prosím.", a: ["Podepište", "Podepsat", "Píšu", "Kreslete"], c: 0 },
 
-  // --- ORIENTACE A ADRESY ---
-  { cat: "Orientace", q: "Co znamená slovo „Vchod“?", a: ["Entrance", "Exit", "Window", "Floor"], c: 0 },
-  { cat: "Orientace", q: "Zákazník bydlí v 5. patře. Co znamená „Patro“?", a: ["Floor", "Building", "Door", "Street"], c: 0 },
-  { cat: "Orientace", q: "Co znamená české slovo „Výtah“?", a: ["Elevator / Lift", "Stairs", "Door", "Bell"], c: 0 },
-  { cat: "Orientace", q: "Co znamená české slovo „Schody“?", a: ["Stairs", "Floor", "Elevator", "House"], c: 0 },
-  { cat: "Orientace", q: "Jak se česky řekne „Left“ a „Right“?", a: ["Vlevo a vpravo", "Dole a nahoře", "Rovně a zpět", "Tady a tam"], c: 0 },
-  { cat: "Orientace", q: "Nevíte, kde je dům zákazníka. Jak se zeptáte?", a: ["Kde přesně bydlíte?", "Odkud jste?", "Kam jdete?", "Kdo jste?"], c: 0 },
-  { cat: "Orientace", q: "Co znamená, když má zákazník v poznámce „Zvoňte“?", a: ["Musím zazvonit na zvonek.", "Musím mu zavolat na mobil.", "Nemám zvonit.", "Mám čekat v autě."], c: 0 },
+  // GRAMATIKA - PÁDY A PŘEDLOŽKY
+  { cat: "Gramatika", q: "Mám tady pro ___ velký nákup.", a: ["vás", "vy", "vám", "váš"], c: 0 },
+  { cat: "Gramatika", q: "Přijel jsem s ___.", a: ["nákupem", "nákup", "nákupu", "nákupy"], c: 0 },
+  { cat: "Gramatika", q: "Dobrý den, vezu vám ___ z Rohlíku.", a: ["nákup", "auto", "zákazníka", "tašku"], c: 0 },
+  { cat: "Gramatika", q: "Jsem s autem ___ domem, můžete přijít dolů?", a: ["před", "na", "v", "do"], c: 0 },
+  { cat: "Gramatika", q: "Zaparkoval jsem hned ___ rohem.", a: ["za", "na", "do", "v"], c: 0 },
+  { cat: "Gramatika", q: "Počkám na ___ venku u auta.", a: ["vás", "vy", "váš", "vám"], c: 0 },
 
-  // --- PLACENÍ A NÁKUP ---
-  { cat: "Placení", q: "Zákazník se ptá: „Můžu platit kartou?“ Co odpovíte, když terminál funguje?", a: ["Ano, samozřejmě.", "Ne, nemám.", "Jenom peníze.", "Možná zítra."], c: 0 },
-  { cat: "Placení", q: "Co znamená platit „Hotově“?", a: ["Platit penězi (bankovky a mince).", "Platit kartou.", "Platit online.", "Neplatit vůbec."], c: 0 },
-  { cat: "Placení", q: "Zákazník chce účtenku. Jak se česky řekne „Receipt“?", a: ["Účtenka", "Taška", "Peníze", "Karta"], c: 0 },
-  { cat: "Placení", q: "Předáváte nákup a chcete podpis zákazníka na displej. Co řeknete?", a: ["Podepište se mi tady, prosím.", "Dejte mi to.", "Chci váš telefon.", "Zavolejte mi."], c: 0 },
-  { cat: "Placení", q: "Zákazník vám dá peníze navíc (dýško) a řekne „To je dobrý“. Co odpovíte?", a: ["Moc děkuji.", "Nechci to.", "To je málo.", "Kolik to je?"], c: 0 },
+  // SITUACE - ŘEŠENÍ PROBLÉMŮ A KOMUNIKACE
+  { cat: "Situace", q: "Když se zákazník ptá: „Kolik to bude stát?“, co odpovíte?", a: ["Celkem to dělá 850 korun.", "Bude to v 8:00.", "Mám 850 korun.", "Chci 850 korun."], c: 0 },
+  { cat: "Situace", q: "Máte v tašce rozbitá vajíčka. Co zákazníkovi řeknete?", a: ["Omlouvám se, hned to vyreklamuji a peníze se vám vrátí.", "To není můj problém, už to tak bylo.", "Musíte to zaplatit.", "Zavolejte na policii."], c: 0 },
+  { cat: "Situace", q: "Zákazník není doma. Voláte mu a ptáte se:", a: ["Dobrý den, za jak dlouho budete doma?", "Kdo jste a kde jste?", "Proč nemáte nákup?", "Kde je auto?"], c: 0 },
+  { cat: "Situace", q: "Výtah v domě nefunguje. Zákazníkovi do telefonu řeknete:", a: ["Výtah nefunguje, půjdu k vám po schodech.", "Zůstanu v autě, přijďte si pro to.", "Výtah je dole, nákup tam nechám.", "Nemám nohy, nechodím."], c: 0 },
+  { cat: "Situace", q: "Jak se slušně omluvíte za to, že jedete pozdě kvůli dopravě?", a: ["Moc se omlouvám za zpoždění, byla špatná doprava.", "Tady jsem konečně.", "Jedu rychle, nestěžujte si.", "Proč tu nejste vy?"], c: 0 },
+  { cat: "Situace", q: "Platební terminál nefunguje nebo nemá signál. Co řeknete?", a: ["Omlouvám se, terminál nemá signál, zkusíme to za chvíli znovu.", "Vaše karta je špatná a rozbitá.", "Nemáte na účtu žádné peníze.", "Běžte si vybrat hotovost."], c: 0 },
+  { cat: "Situace", q: "Zákazník chce nákup zrušit (vrátit). Co mu řeknete?", a: ["Dobře, zavolám na zákaznickou podporu a zařídím storno.", "To nesmíte udělat.", "Stejně mi musíte dát peníze.", "To nevím, to je váš problém."], c: 0 },
 
-  // --- ŘEŠENÍ PROBLÉMŮ / KOMUNIKACE ---
-  { cat: "Komunikace", q: "Máte v taškách rozbitá vajíčka. Jak zákazníkovi situaci vysvětlíte?", a: ["Omlouvám se, vajíčka jsou rozbitá. Zavolám na podporu a peníze vám vrátíme.", "Vajíčka jsou špatná. To není můj problém.", "Nemám vajíčka.", "Kupte si nová vajíčka."], c: 0 },
-  { cat: "Komunikace", q: "Chybí jedna taška a musíte se vrátit do auta. Co řeknete?", a: ["Hned jsem zpátky, dojdu pro to do auta.", "Já to nemám, nashledanou.", "Zavolám vám zítra.", "Taška není."], c: 0 },
-  { cat: "Komunikace", q: "Zákazník má těžký nákup (vodu) a ptá se, jestli mu to dáte za dveře. Co řeknete?", a: ["Ano, dám vám to hned za dveře.", "Ne, to nedělám.", "Vezměte si to.", "Je to moc těžké."], c: 0 },
-  { cat: "Komunikace", q: "Chcete, aby zákazník chvíli počkal. Jak to řeknete česky?", a: ["Počkejte chvíli, prosím.", "Rychle!", "Jděte pryč.", "Už jdu."], c: 0 },
-  { cat: "Komunikace", q: "Musíte zkontrolovat občanský průkaz (alkohol). Co řeknete?", a: ["Můžu vidět váš občanský průkaz, prosím?", "Máte věk?", "Kde je dokument?", "Dám vám to bez průkazu."], c: 0 }
+  // SLOVNÍ ZÁSOBA A POROZUMĚNÍ
+  { cat: "Slovní zásoba", q: "Zákazník vám řekne: „Drobné si nechte.“ Co to znamená?", a: ["Dává mi spropitné (dýško) za doručení.", "Nechce už nákup, můžu si ho nechat.", "Mám mu vrátit úplně všechny peníze.", "Mám peníze vyhodit do koše."], c: 0 },
+  { cat: "Slovní zásoba", q: "Co znamená, když je v poznámce: „Zvoňte na Novák“?", a: ["Musím na panelu najít jméno Novák a zazvonit.", "Budu na ulici křičet Novák.", "Musím zavolat Novákovi na mobil.", "Zazvoním raději na všechny zvonky."], c: 0 },
+  { cat: "Slovní zásoba", q: "Co znamená slovo „Účtenka“?", a: ["Papír z terminálu s potvrzením o nákupu a platbě.", "Peníze, které mi zákazník dává v hotovosti.", "Papírová taška, ve které je nákup.", "Zákazníkův občanský průkaz."], c: 0 },
+  { cat: "Slovní zásoba", q: "Zákazník se ptá: „Máte na vrácení z tisícovky?“ Co tím myslí?", a: ["Jestli mám u sebe dost peněz, abych mu vrátil zbytek z 1000 Kč.", "Jestli chci tisíc korun pro sebe jako dýško.", "Jestli mu můžu rozměnit eura na tisícovku.", "Jestli mu k nákupu dám zdarma 1000 Kč."], c: 0 },
+  { cat: "Slovní zásoba", q: "V aplikaci je poznámka: „Nechte nákup za dveřmi.“ Co uděláte?", a: ["Položím tašky s nákupem před dveře bytu.", "Otevřu dveře a dám tašky zákazníkovi do bytu.", "Zazvoním a musím čekat, dokud si to zákazník nevezme.", "Vrátím nákup do auta a odvezu ho zpět na sklad."], c: 0 },
+  { cat: "Slovní zásoba", q: "Musíte zkontrolovat věk kvůli alkoholu. Co řeknete?", a: ["Mohl bych prosím vidět váš občanský průkaz?", "Kolik je vám let? (a nechám si to jen říct)", "Máte peníze na alkohol?", "Pijete alkohol často?"], c: 0 },
+  { cat: "Slovní zásoba", q: "Co odpovíte, když se s vámi zákazník loučí slovy: „Nashledanou a hezký víkend!“", a: ["Děkuji, vám také. Na shledanou.", "Prosím.", "Ano, mám víkend.", "Ne, nemám víkend."], c: 0 },
+  { cat: "Slovní zásoba", q: "Jak zdvořile oslovíte zákazníka, když mu předáváte nákup?", a: ["Dobrý den, tady je váš nákup.", "Ahoj, tady máš nákup.", "Čau, nesu věci.", "Nazdar, vem si to."], c: 0 }
 ];
 
 let state = {
@@ -176,11 +193,8 @@ let state = {
     history: [], hesitancy: []
 };
 
-// Ochrana proti podvádění
 document.addEventListener('visibilitychange', () => {
-    if (document.hidden && state.testSet.length > 0) {
-        state.tabSwitches++;
-    }
+    if (document.hidden && state.testSet.length > 0) state.tabSwitches++;
 });
 
 function startTest() {
@@ -206,9 +220,7 @@ function renderQuestion() {
     clearInterval(qTimer);
     const q = state.testSet[state.current];
     
-    let qText = q.q;
-    
-    document.getElementById('q-text').innerText = qText;
+    document.getElementById('q-text').innerText = q.q;
     document.getElementById('q-idx').innerText = `${state.current + 1}/${Q_LIMIT}`;
     document.getElementById('progress').style.width = `${(state.current / Q_LIMIT) * 100}%`;
     document.getElementById('btn-next').disabled = true;
@@ -217,7 +229,6 @@ function renderQuestion() {
     ansDiv.innerHTML = "";
     state.selected = null;
     
-    // Fisher-Yates míchání (správná odpověď je vždy jinde)
     let answers = q.a.map((text, originalIndex) => ({ text, originalIndex }));
     for (let i = answers.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -265,7 +276,14 @@ function nextQuestion(isTimeout = false) {
     const isCorrect = (!isTimeout && state.selected === q.c);
     if (isCorrect) state.score++;
     
-    state.history.push({ cat: qCategory, correct: isCorrect });
+    // Zápis chybného výsledku pro zobrazení na konci
+    state.history.push({ 
+        cat: qCategory, 
+        correct: isCorrect,
+        question: q.q,
+        userAnswer: isTimeout ? "Vypršel čas" : (state.selected !== null ? q.a[state.selected] : "Žádná odpověď"),
+        correctAnswer: q.a[q.c]
+    });
 
     if (state.current < Q_LIMIT - 1) {
         state.current++;
@@ -296,6 +314,25 @@ function finish() {
     document.getElementById('res-icon').innerText = passed ? "🎉" : "❌";
     document.getElementById('res-status').innerText = passed ? "SKVĚLÉ, PROŠEL(A) JSI!" : "BOHUŽEL, TO NESTAČÍ.";
     document.getElementById('res-status').style.color = passed ? "var(--success)" : "var(--danger)";
+
+    // Generování výpisu chyb
+    const mistakesContainer = document.getElementById('mistakes-container');
+    const mistakesList = document.getElementById('mistakes-list');
+    const errors = state.history.filter(h => !h.correct);
+    
+    if (errors.length > 0) {
+        mistakesContainer.style.display = 'block';
+        errors.forEach(err => {
+            const div = document.createElement('div');
+            div.className = 'mistake-item';
+            div.innerHTML = `
+                <div style="font-weight:bold; margin-bottom:5px;">${err.question}</div>
+                <div style="color:var(--danger); margin-bottom:3px;">❌ ${err.userAnswer}</div>
+                <div style="color:var(--success);">✅ ${err.correctAnswer}</div>
+            `;
+            mistakesList.appendChild(div);
+        });
+    }
 
     const payload = {
         noviceName: document.getElementById('name-n').value.trim(),
