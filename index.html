@@ -2,7 +2,7 @@
 <html lang="cs" translate="no">
 <head>
     <meta charset="UTF-8">
-    <title>Rohlík.cz – Vstupní test</title>
+    <title>Rohlík.cz – Jazykový test (ČJ)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="google" content="notranslate">
     <style>
@@ -59,6 +59,7 @@
             width: 100%; padding: 16px; margin-bottom: 15px;
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; color: white; font-size: 16px; outline: none;
+            box-sizing: border-box;
         }
         input:focus { border-color: var(--rohlik); background: rgba(255,255,255,0.1); }
 
@@ -98,10 +99,10 @@
 
 <div class="container" style="flex:1; display:flex;">
     <div id="screen-login" class="glass-card">
-        <h2>Vstupní test</h2>
+        <h2>Jazykový test (ČJ)</h2>
         <input type="text" id="name-n" placeholder="Jméno kurýra">
         <input type="text" id="name-t" placeholder="Jméno trenéra">
-        <input type="" id="pass-t" placeholder="Heslo trenéra">
+        <input type="password" id="pass-t" placeholder="Heslo trenéra">
         <div id="error-msg"></div>
         <button class="btn-main" id="btn-start" onclick="startTest()">Spustit test</button>
     </div>
@@ -123,52 +124,50 @@
 <script>
 // --- KONFIGURACE ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylbGGi498B00Tyjrjhlo1FUJKPbWCr8QYsOX1cNUvav7inqfGAkvG-WExKolS0SmmE6A/exec";
-const HASHED_PASS = "UmhsMjY=";
+// Heslo je "ROH26" (v Base64)
+const HASHED_PASS = "Uk9IMjY=";
 const Q_LIMIT = 25;
 const SECONDS_PER_Q = 45;
 const MAX_ERRORS = 5;
 
-// --- BANKA OTÁZEK ---
-const NAMES = ["pan Novák", "pan Svoboda", "pan Dvořák", "pan Černý"];
+// --- BANKA OTÁZEK - ČEŠTINA A1/A2 ---
 const BANK = [
-  // --- 1. FIREMNÍ PROCESY A REKLAMACE ---
-  { cat: "Procesy", q: "Auto nestartuje, máš defekt nebo jinou technickou poruchu. Komu zavoláš?", a: ["Technikům.", "Zákaznické podpoře.", "Dispečinku.", "Správci vybavení."], c: 0 },
-  { cat: "Procesy", q: "Zablokoval se ti firemní telefon nebo potřebuješ zvýšit limit na tankovací kartě. Kdo to řeší?", a: ["Správce vybavení.", "Technici.", "Dispečink.", "KKS."], c: 0 },
-  { cat: "Procesy", q: "Za jakých okolností smíš telefonicky volat na Dispečink?", a: ["Jen když nemohu pokračovat v trase (např. nehoda, překládka). Jinak přes SMS.", "Volám jim kvůli každému zpoždění.", "Volám jim kvůli defektu auta.", "Když zákazník není doma."], c: 0 },
-  { cat: "Procesy", q: "Máš zpoždění na trase a potřebuješ ho řešit, nebo odevzdáváš vratné obaly. Na koho se obrátíš?", a: ["Na KKS.", "Na Dispečink.", "Na Techniky.", "Na Zákaznickou podporu."], c: 0 },
-  { cat: "Reklamace", q: "Při předávání zákazník zjistí, že jsou rajčata plesnivá. Co přesně uděláš?", a: ["Omluvím se. Zavolám Zákaznickou podporu a položku vyreklamuji, peníze se mu obratem vrátí do kreditů na jeho účet.", "Sám to smažu v aplikaci a peníze mu přijdou zpět na jeho bankovní kartu.", "Řeknu mu, ať si to vyreklamuje u Dispečinku.", "Já je nebalil, nezajímá mě to."], c: 0 },
-  { cat: "Reklamace", q: "Rozbila se ti lahev s olejem a zničila půlku nákupu. Co řekneš zákazníkovi?", a: ["Velice se omlouvám. Zavolám na Zákaznickou podporu, zničené věci hned vyreklamujeme a peníze se vám vrátí jako kredity na váš zákaznický účet.", "Zavolejte si sami na Dispečink.", "Tady to máte, je to trochu mastné.", "To už tak bylo připravené ve skladu."], c: 0 },
-  { cat: "Reklamace", q: "Zákazníkovi chybí maso. Ty ho v autě nemáš. Co uděláš?", a: ["Omlouvám se. Zavolám na Zákaznickou podporu, aby maso vyreklamovali a vám naskočily peníze do kreditů.", "Někdo ho asi ukradl, já ho nemám.", "Zavolejte si na Dispečink a oni vám ho zítra dovezou.", "Odečtu to z celkové ceny a nechám si méně hotovosti."], c: 0 },
-  { cat: "Reklamace", q: "Zákazník se ptá, proč minule nedostal peníze zpět na svůj bankovní účet za rozbité vejce. Co odpovíš?", a: ["Peníze z reklamací, které vyřeší Zákaznická podpora, se vrací ihned ve formě kreditů na váš Rohlík účet pro další nákup.", "To musíte řešit s KKS.", "Protože jste lhal.", "Dám vám své peníze."], c: 0 },
-
-  // --- PRAVIDLA (ALKOHOL, STRAVENKY A DÝŠKA) ---
-  { cat: "Pravidla", q: "Zákazník platí nákup papírovými stravenkami, ale v taškách má i prací prášek a šampon. Vezmeš je?", a: ["Ano, stravenky bereme na celý nákup bez ohledu na to, co v něm je.", "Stravenkami může platit jen jídlo, drogerii musí doplatit hotově.", "Stravenky vůbec nebereme.", "Vezmu je, ale jen v poloviční hodnotě."], c: 0 },
-  { cat: "Pravidla", q: "Zákazník má platit 430 Kč. Dává ti 500 Kč a říká: „To je v pořádku.“ Co to znamená a jak zareaguješ?", a: ["70 Kč mi dává jako spropitné (dýško). Vždycky mu za to slušně poděkuji.", "Znamená to, že mu musím vrátit přesně 70 Kč do koruny.", "Znamená to, že mám nákup stornovat.", "Vezmu si peníze a beze slova odejdu."], c: 0 },
-  { cat: "Pravidla", q: "Zákazník platil nákup online, ale na místě říká: „Tady máte padesát korun na kávu za tu rychlost.“ Co uděláš?", a: ["Je to dýško pro mě. Slušně mu poděkuji, popřeji hezký den a peníze si vezmu.", "Odmítnu to, spropitné nesmíme brát.", "To jsou peníze pro Rohlík a musím je odevzdat na skladě.", "Snaží se mě uplatit, zavolám Zákaznickou podporu."], c: 0 },
-  { cat: "Pravidla", q: "V nákupu je alkohol. Otevře ti 15letý chlapec. Co uděláš?", a: ["Alkohol mu nedám. Počkám na dospělého s průkazem, nebo zavolám Zákaznickou podporu pro storno.", "Dám mu to, to je jedno.", "Chci fotku občanky rodičů.", "Nechám to za dveřmi."], c: 0 },
-  { cat: "Pravidla", q: "Zákazník nemá u sebe občanku, vypadá velmi mladě a kupuje cigarety. Co uděláš?", a: ["Omlouvám se, bez průkazu vám to nesmím předat. Zavolám ZP pro reklamaci/storno do kreditů.", "Podepište se a vezměte si to.", "Počkám, až najdete rodný list.", "Dám vám to."], c: 0 },
-  { cat: "Pravidla", q: "Zákazník ukazuje fotku občanky v mobilu, aby dokázal, že mu je 18 let. Stačí to?", a: ["Ne, musím vidět originál průkazu, nebo oficiální aplikaci eDoklady.", "Ano, fotka stačí.", "Ano, pokud je barevná.", "Ne, musí mít pas."], c: 0 },
-
-  // --- KOMUNIKACE A GRAMATIKA ---
-  { cat: "Komunikace", q: "Doplň zdvořilou větu: „___ byste mi prosím otevřít i ty druhé dveře?“", a: ["Mohl", "Můžete", "Chcete", "Máte"], c: 0 },
-  { cat: "Komunikace", q: "Doplň: „Omlouvám se, ___ jsem vzít ještě jednu tašku. Hned pro ni dojdu.“", a: ["zapomněl", "zapomínám", "nezapomněl", "zapomenout"], c: 0 },
-  { cat: "Komunikace", q: "Doplň větu: „Pokud to nepůjde zaplatit kartou, ___ to zaplatit hotově?“", a: ["můžete", "byste mohl", "budete moci", "chtít"], c: 0 },
-  { cat: "Komunikace", q: "Jak slušně požádáš o podpis na displej telefonu?", a: ["Podepište se mi sem prstem, prosím.", "Dejte mi podpis.", "Tady to podepiš.", "Musíte to podepsat teď."], c: 0 },
-  { cat: "Komunikace", q: "Zákazník má plné ruce a chce vyložit nákup do lednice. Jak zdvořile odmítneš?", a: ["Nezlobte se, to z hygienických a časových důvodů nemohu, nákup položím na stůl.", "Ne, to nedělám.", "Nemám čas.", "Vyložte si to sám."], c: 0 },
-  { cat: "Komunikace", q: "Zákazník je rozzlobený kvůli zpoždění. Která věta je nejvhodnější?", a: ["Velice se omlouvám za zpoždění, byla hrozná dopravní situace.", "Uklidněte se, vždyť jsem tady.", "Mohl jste si nakoupit sám.", "Stěžujte si na KKS."], c: 0 },
-
-  // --- NAVIGACE A ADRESY ---
-  { cat: "Orientace", q: "Poznámka: „Prosím, nechte auto na blikačkách a projděte průchodem do dvora.“ Co uděláš?", a: ["Zastavím na hlavní, zapnu výstražná světla a půjdu pěšky průchodem.", "Vejedu s autem až do dvora.", "Ať si pro to přijde na ulici.", "Zruším objednávku."], c: 0 },
-  { cat: "Orientace", q: "Poznámka: „Slepá ulice, nedá se tam otočit.“ Jak to vyřešíš?", a: ["Zacouvám tam, nebo zaparkuji před ulicí a donesu to pěšky.", "Pojedu tam rychle.", "Nechám to na křižovatce.", "Zavolám na Dispečink."], c: 0 },
-  { cat: "Orientace", q: "Co znamená nápis na zvonku: „Zvonek nefunguje, volejte na mobil“?", a: ["Nemám zvonit, ale rovnou vytočit telefonní číslo zákazníka.", "Mám klepat na dveře.", "Mám křičet do okna.", "Nechám to před domem."], c: 0 },
-  { cat: "Orientace", q: "Aplikace píše: „Doručení na recepci, zákazník již zaplatil online.“ Komu předáš nákup?", a: ["Předám nákup recepčnímu a rovnou odcházím, nic nevybírám.", "Budu po recepčním chtít zaplatit.", "Nechám to venku na ulici.", "Musím najít zákazníka."], c: 0 },
-  { cat: "Orientace", q: "Dopravní značka „Zákaz zastavení“. Co pro tebe znamená?", a: ["Nesmím tam zastavit ani na minutu pro vyložení nákupu, hrozí pokuta.", "Můžu tam parkovat celý den.", "Můžu tam stát 15 minut.", "Můžu tam stát na blikačkách."], c: 0 },
-  { cat: "Orientace", q: "Co znamená „Modrá zóna“ v Praze nebo Brně?", a: ["Zóna pro rezidenty. Jako kurýr musím dávat pozor na pravidla parkování.", "Parkování je vždy zdarma.", "Zóna pro elektromobily.", "Místo na mytí aut."], c: 0 },
+  // --- ZÁKLADNÍ FRÁZE A ZDRAVENÍ ---
+  { cat: "Fráze", q: "Jak správně pozdravíte zákazníka ráno?", a: ["Dobré ráno.", "Dobrý večer.", "Na shledanou.", "Dobrou noc."], c: 0 },
+  { cat: "Fráze", q: "Když zákazníkovi předáváte nákup, co řeknete?", a: ["Tady je váš nákup.", "Co chcete?", "Já chci nákup.", "Kde je nákup?"], c: 0 },
+  { cat: "Fráze", q: "Zákazník vám řekne: „Děkuji.“ Co odpovíte?", a: ["Prosím. / Není zač.", "Ano, děkuji.", "Ne.", "Omlouvám se."], c: 0 },
+  { cat: "Fráze", q: "Jak se rozloučíte po předání nákupu?", a: ["Na shledanou, hezký den.", "Dobré ráno.", "Dobrý den.", "Haló."], c: 0 },
+  { cat: "Fráze", q: "Jak se slušně omluvíte za zpoždění?", a: ["Omlouvám se za zpoždění.", "Tady jsem.", "Mám zpoždění, no a?", "Děkuji za zpoždění."], c: 0 },
+  { cat: "Fráze", q: "Co řeknete, když zákazníkovi nerozumíte?", a: ["Nerozumím vám, můžete to zopakovat, prosím?", "Nemluvte.", "Já vím.", "Nechci slyšet."], c: 0 },
 
   // --- TELEFONOVÁNÍ ---
-  { cat: "Komunikace", q: "Nevíš, jaký má zákazník zvonek. Voláš mu. Jak hovor začneš?", a: ["Dobrý den, tady kurýr z Rohlíku. Jsem před domem, jaké jméno máte prosím na zvonku?", "Kde máte zvonek?", "Pojďte dolů.", "Otevřete!"], c: 0 },
-  { cat: "Komunikace", q: "Zákazník to zvedne a špatně ho slyšíš (vypadává signál). Jak mu to česky řekneš?", a: ["Omlouvám se, je tu velmi špatný signál a špatně vás slyším. Můžete to zopakovat?", "Haló! Mluvte!", "Ruším objednávku.", "Zavolám na Dispečink."], c: 0 },
-  { cat: "Komunikace", q: "Do telefonu se ozve anglicky hovořící zákazník: „Hello, I don't speak Czech.“ Jak odpovíš?", a: ["Hello, this is Rohlík courier. I am in front of your building.", "Musíte mluvit česky.", "Nerozumím.", "Zavolám Zákaznickou podporu."], c: 0 }
+  { cat: "Telefonování", q: "Jak začnete telefonní hovor se zákazníkem?", a: ["Dobrý den, tady kurýr Rohlíku.", "Já jsem tady.", "Otevřete.", "Kdo volá?"], c: 0 },
+  { cat: "Telefonování", q: "Zákazník to zvedne a špatně ho slyšíte. Jak to řeknete česky?", a: ["Omlouvám se, špatně vás slyším.", "Haló, mluvte!", "Položím to.", "Vy neslyšíte."], c: 0 },
+  { cat: "Telefonování", q: "Potřebujete, aby zákazník přišel dolů. Jak to řeknete?", a: ["Můžete prosím přijít dolů?", "Já nahoru nejdu.", "Jděte ven.", "Kde jste?"], c: 0 },
+  { cat: "Telefonování", q: "Chcete zákazníkovi říct, že dorazíte za 5 minut. Co řeknete?", a: ["Budu u vás za pět minut.", "Jsem tam pět minut.", "Za chvíli je pět.", "Čekám pět minut."], c: 0 },
+
+  // --- ORIENTACE A ADRESY ---
+  { cat: "Orientace", q: "Co znamená slovo „Vchod“?", a: ["Entrance", "Exit", "Window", "Floor"], c: 0 },
+  { cat: "Orientace", q: "Zákazník bydlí v 5. patře. Co znamená „Patro“?", a: ["Floor", "Building", "Door", "Street"], c: 0 },
+  { cat: "Orientace", q: "Co znamená české slovo „Výtah“?", a: ["Elevator / Lift", "Stairs", "Door", "Bell"], c: 0 },
+  { cat: "Orientace", q: "Co znamená české slovo „Schody“?", a: ["Stairs", "Floor", "Elevator", "House"], c: 0 },
+  { cat: "Orientace", q: "Jak se česky řekne „Left“ a „Right“?", a: ["Vlevo a vpravo", "Dole a nahoře", "Rovně a zpět", "Tady a tam"], c: 0 },
+  { cat: "Orientace", q: "Nevíte, kde je dům zákazníka. Jak se zeptáte?", a: ["Kde přesně bydlíte?", "Odkud jste?", "Kam jdete?", "Kdo jste?"], c: 0 },
+  { cat: "Orientace", q: "Co znamená, když má zákazník v poznámce „Zvoňte“?", a: ["Musím zazvonit na zvonek.", "Musím mu zavolat na mobil.", "Nemám zvonit.", "Mám čekat v autě."], c: 0 },
+
+  // --- PLACENÍ A NÁKUP ---
+  { cat: "Placení", q: "Zákazník se ptá: „Můžu platit kartou?“ Co odpovíte, když terminál funguje?", a: ["Ano, samozřejmě.", "Ne, nemám.", "Jenom peníze.", "Možná zítra."], c: 0 },
+  { cat: "Placení", q: "Co znamená platit „Hotově“?", a: ["Platit penězi (bankovky a mince).", "Platit kartou.", "Platit online.", "Neplatit vůbec."], c: 0 },
+  { cat: "Placení", q: "Zákazník chce účtenku. Jak se česky řekne „Receipt“?", a: ["Účtenka", "Taška", "Peníze", "Karta"], c: 0 },
+  { cat: "Placení", q: "Předáváte nákup a chcete podpis zákazníka na displej. Co řeknete?", a: ["Podepište se mi tady, prosím.", "Dejte mi to.", "Chci váš telefon.", "Zavolejte mi."], c: 0 },
+  { cat: "Placení", q: "Zákazník vám dá peníze navíc (dýško) a řekne „To je dobrý“. Co odpovíte?", a: ["Moc děkuji.", "Nechci to.", "To je málo.", "Kolik to je?"], c: 0 },
+
+  // --- ŘEŠENÍ PROBLÉMŮ / KOMUNIKACE ---
+  { cat: "Komunikace", q: "Máte v taškách rozbitá vajíčka. Jak zákazníkovi situaci vysvětlíte?", a: ["Omlouvám se, vajíčka jsou rozbitá. Zavolám na podporu a peníze vám vrátíme.", "Vajíčka jsou špatná. To není můj problém.", "Nemám vajíčka.", "Kupte si nová vajíčka."], c: 0 },
+  { cat: "Komunikace", q: "Chybí jedna taška a musíte se vrátit do auta. Co řeknete?", a: ["Hned jsem zpátky, dojdu pro to do auta.", "Já to nemám, nashledanou.", "Zavolám vám zítra.", "Taška není."], c: 0 },
+  { cat: "Komunikace", q: "Zákazník má těžký nákup (vodu) a ptá se, jestli mu to dáte za dveře. Co řeknete?", a: ["Ano, dám vám to hned za dveře.", "Ne, to nedělám.", "Vezměte si to.", "Je to moc těžké."], c: 0 },
+  { cat: "Komunikace", q: "Chcete, aby zákazník chvíli počkal. Jak to řeknete česky?", a: ["Počkejte chvíli, prosím.", "Rychle!", "Jděte pryč.", "Už jdu."], c: 0 },
+  { cat: "Komunikace", q: "Musíte zkontrolovat občanský průkaz (alkohol). Co řeknete?", a: ["Můžu vidět váš občanský průkaz, prosím?", "Máte věk?", "Kde je dokument?", "Dám vám to bez průkazu."], c: 0 }
 ];
 
 let state = {
@@ -208,9 +207,6 @@ function renderQuestion() {
     const q = state.testSet[state.current];
     
     let qText = q.q;
-    if (qText.includes("{name}")) {
-        qText = qText.replace("{name}", NAMES[Math.floor(Math.random() * NAMES.length)]);
-    }
     
     document.getElementById('q-text').innerText = qText;
     document.getElementById('q-idx').innerText = `${state.current + 1}/${Q_LIMIT}`;
