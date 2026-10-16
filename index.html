@@ -60,13 +60,14 @@
             text-align: center; font-size: 14px; margin-bottom: 20px; line-height: 1.4;
         }
 
-        input {
+        input, select {
             width: 100%; padding: 16px; margin-bottom: 15px;
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 16px; color: white; font-size: 16px; outline: none;
-            box-sizing: border-box;
+            box-sizing: border-box; appearance: none;
         }
-        input:focus { border-color: var(--rohlik); background: rgba(255,255,255,0.1); }
+        input:focus, select:focus { border-color: var(--rohlik); background: rgba(255,255,255,0.1); }
+        select option { background: var(--bg); color: white; }
 
         .btn-main {
             width: 100%; padding: 18px; border: none; border-radius: 18px;
@@ -84,7 +85,7 @@
         .ans-btn:hover { background: rgba(255,255,255,0.08); transform: translateY(-2px); }
         .ans-btn.selected { border-color: var(--rohlik); background: var(--rohlik-glow); }
 
-        #error-msg { color: var(--danger); text-align: center; font-weight: bold; margin: 10px 0; display: none; }
+        #error-msg { color: var(--danger); text-align: center; font-weight: bold; margin: 10px 0; display: none; line-height: 1.4; }
 
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .low-time { color: var(--danger); animation: pulse 1s infinite; }
@@ -120,6 +121,14 @@
         <div class="alert-box">
             ⚠️ <b>Upozornění:</b> Test je pouze na <b>jeden pokus</b>.<br>Na každou otázku je časový limit 60 vteřin!
         </div>
+        <select id="warehouse-select">
+            <option value="" disabled selected>Vyberte sklad</option>
+            <option value="Liboc">Liboc</option>
+            <option value="Horní Počernice">Horní Počernice</option>
+            <option value="Chrášťany">Chrášťany</option>
+            <option value="Brno">Brno</option>
+            <option value="Ostrava">Ostrava</option>
+        </select>
         <input type="text" id="name-n" placeholder="Jméno kurýra">
         <input type="text" id="name-t" placeholder="Jméno trenéra">
         <input type="password" id="pass-t" placeholder="Heslo trenéra">
@@ -147,16 +156,6 @@
 </div>
 
 <script>
-// --- OCHRANA PROTI OPAKOVANÉMU SPUŠTĚNÍ ---
-document.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("rohlikTestZablokovan") === "true") {
-        document.getElementById("screen-login").innerHTML = `
-            <h2 style="color:var(--danger); margin-bottom:10px;">Test byl již spuštěn</h2>
-            <p style="text-align:center; line-height:1.5;">Tento test je povolen pouze na jeden pokus. Váš pokus byl již vyčerpán nebo došlo k obnovení stránky během testování.</p>
-        `;
-    }
-});
-
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylbGGi498B00Tyjrjhlo1FUJKPbWCr8QYsOX1cNUvav7inqfGAkvG-WExKolS0SmmE6A/exec";
 const HASHED_PASS = "Uk9IMjY="; 
 const Q_LIMIT = 25;
@@ -216,18 +215,29 @@ document.addEventListener('visibilitychange', () => {
 });
 
 function startTest() {
-    // Pokud je test zablokován už z předchozí relace, nepustí dál
-    if (localStorage.getItem("rohlikTestZablokovan") === "true") return;
-
+    const w = document.getElementById('warehouse-select').value;
     const n = document.getElementById('name-n').value.trim();
     const t = document.getElementById('name-t').value.trim();
     const p = document.getElementById('pass-t').value.trim();
     
-    if (!n || !t) { document.getElementById('error-msg').innerText = "Vyplňte jména!"; document.getElementById('error-msg').style.display = 'block'; return; }
+    // Ochrana admina (vyhnutí se pravidlu 1 pokusu a odblokování)
+    const isAdmin = (n.toLowerCase() === "admin" || t.toLowerCase() === "admin");
+
+    if (localStorage.getItem("rohlikTestZablokovan") === "true" && !isAdmin) {
+        document.getElementById('error-msg').innerHTML = "Tento test je povolen pouze na jeden pokus.<br>Váš pokus byl již vyčerpán.";
+        document.getElementById('error-msg').style.display = 'block';
+        return;
+    }
+    
+    if (!w || !n || !t) { document.getElementById('error-msg').innerText = "Vyplňte všechna pole!"; document.getElementById('error-msg').style.display = 'block'; return; }
     if (btoa(p) !== HASHED_PASS) { document.getElementById('error-msg').innerText = "Špatné heslo!"; document.getElementById('error-msg').style.display = 'block'; return; }
 
-    // Uložení zámku do prohlížeče (jeden pokus)
-    localStorage.setItem("rohlikTestZablokovan", "true");
+    // Zápis blokace pouze pokud to není admin (admin si může testovat donekonečna)
+    if (!isAdmin) {
+        localStorage.setItem("rohlikTestZablokovan", "true");
+    } else {
+        localStorage.removeItem("rohlikTestZablokovan"); // Pro jistotu čistí paměť
+    }
 
     state.testSet = BANK.sort(() => 0.5 - Math.random()).slice(0, Q_LIMIT);
     state.startTime = Date.now();
@@ -358,6 +368,7 @@ function finish() {
     }
 
     const payload = {
+        warehouse: "🏭 " + document.getElementById('warehouse-select').value,
         noviceName: document.getElementById('name-n').value.trim(),
         trainerName: document.getElementById('name-t').value.trim(),
         score: state.score,
